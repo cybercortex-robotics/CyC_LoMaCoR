@@ -1,0 +1,27 @@
+// Copyright (c) 2025 CyberCortex Robotics SRL. All rights reserved
+// Author: Sorin Mihai Grigorescu
+
+#ifndef CLomacorMapsFilter_H_
+#define CLomacorMapsFilter_H_
+
+#include "CyC_TYPES.h"
+#include <CCycFilterBase.h>
+#include "env/COcTreeUtils.h"
+
+class CLomacorMapsFilter : public CCycFilterBase
+{
+public:
+	explicit CLomacorMapsFilter(CycDatablockKey key);
+	explicit CLomacorMapsFilter(const ConfigFilterParameters& params);
+
+	~CLomacorMapsFilter() override;
+
+	bool enable() override;
+	bool disable() override;
+
+private:
+    bool process() override;
+    void loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path) override;
+};
+
+#endif /* CLomacorMapsFilter_H_ */

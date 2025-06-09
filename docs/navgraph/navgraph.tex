@@ -1,0 +1,121 @@
+\documentclass[journal]{IEEEtran}
+
+% *** GRAPHICS RELATED PACKAGES ***
+%
+\ifCLASSINFOpdf
+	\usepackage{graphics} % for pdf, bitmapped graphics files
+	\usepackage{epsfig} % for postscript graphics files
+	\usepackage{mathptmx} % assumes new font selection scheme installed
+	\usepackage{times} % assumes new font selection scheme installed
+	\usepackage{amsmath} % assumes amsmath package installed
+	\usepackage{amssymb}  % assumes amsmath package installed
+	\usepackage{textcomp}
+	\usepackage{multirow}
+	\usepackage{colortbl}
+	\usepackage{xcolor}
+	\usepackage{hhline}
+	\usepackage{subcaption}
+	\usepackage{bm}
+	\usepackage{hyperref}
+	\usepackage{lipsum}
+	\usepackage{mathtools}
+	\usepackage{cuted}
+    	\usepackage{algorithm}
+    	\usepackage{algpseudocode}
+	\usepackage[mathscr]{euscript}
+	% declare the path(s) where your graphic files are
+	\graphicspath{{figs/}{evaluation/}}
+	% and their extensions so you won't have to specify these with
+	% every instance of \includegraphics
+	% \DeclareGraphicsExtensions{.pdf,.jpeg,.png}
+\else
+  % or other class option (dvipsone, dvipdf, if not using dvips). graphicx
+  % will default to the driver specified in the system graphics.cfg if no
+  % driver is specified.
+  % \usepackage[dvips]{graphicx}
+  % declare the path(s) where your graphic files are
+  % \graphicspath{{../eps/}}
+  % and their extensions so you won't have to specify these with
+  % every instance of \includegraphics
+  % \DeclareGraphicsExtensions{.eps}
+\fi
+
+% correct bad hyphenation here
+\hyphenation{op-tical net-works semi-conduc-tor}
+
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand\norm[1]{\left\lVert#1\right\rVert}
+
+
+\begin{document}
+
+\title{NavGraph}
+
+
+\author{Sorin~Grigorescu\% <-this % stops a space
+\thanks{This work was supported by European Commision funding under the euRobin Grant no. ???.}
+\thanks{The authors are with CyberCortex Robotics and the Robotics, Vision and Control Laboratory (RovisLab) at the Department of Automation and Information Technology, Transilvania University of Brasov, 500036 Romania e-mail: (see \url{http://rovislab.com/sorin_grigorescu.html}).}% <-this % stops a space
+\thanks{Manuscript received June 9, 2025.}}
+
+
+% The paper headers
+\markboth{}%
+{Shell \MakeLowercase{\textit{et al.}}: Bare Demo of IEEEtran.cls for IEEE Journals}
+
+% make the title area
+\maketitle
+
+\begin{abstract}
+
+NavGraph ...
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+Autonomous robots, autonomy, simultaneous localization and mapping, ground robots, microaerial vehicles.
+\end{IEEEkeywords}
+
+
+
+% For peer review papers, you can put extra information on the cover
+% page as needed:
+% \ifCLASSOPTIONpeerreview
+% \begin{center} \bfseries EDICS Category: 3-BBND \end{center}
+% \fi
+%
+% For peerreview papers, this IEEEtran command inserts a page break and
+% creates the second title. It will be ignored for other modes.
+\IEEEpeerreviewmaketitle
+
+
+
+\section{Introduction}
+\label{sec:introduction}
+
+\IEEEPARstart{O}{ver} the past ...
+
+
+\section{Related Work}
+\label{sec:related_work}
+
+
+\section{NavGraph}
+\label{sec:navgraph}
+
+
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+
+
+%\nocite{*}
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+
+% that's all folks
+\end{document}
