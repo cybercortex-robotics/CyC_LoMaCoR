@@ -21,14 +21,14 @@ CLomacorMapsFilter::CLomacorMapsFilter(CycDatablockKey key) : CCycFilterBase(key
 {
     // Assign the filter type, input type and output type
     setFilterType("CyC_LOMACOR_MAPS_FILTER_TYPE");
-    m_OutputDataType = CyC_OCTREE;
+    m_OutputDataType = CyC_VECTOR_INT;
 }
 
 CLomacorMapsFilter::CLomacorMapsFilter(const ConfigFilterParameters& params) : CCycFilterBase(params)
 {
     // Assign the filter type, input type and output type
     setFilterType("CyC_LOMACOR_MAPS_FILTER_TYPE");
-    m_OutputDataType = CyC_OCTREE;
+    m_OutputDataType = CyC_VECTOR_INT;
 }
 
 CLomacorMapsFilter::~CLomacorMapsFilter()
@@ -44,7 +44,8 @@ bool CLomacorMapsFilter::enable()
     {
         for (CycInputSource& src : getInputSources())
         {
-            
+            if (src.pCycFilter->getFilterType() == CStringUtils::CyC_HashFunc("CyC_LOMACOR_SERVER_FILTER_TYPE"))
+                m_pInputFilterMapsServer = src.pCycFilter;
         }
     }
     
@@ -66,10 +67,27 @@ bool CLomacorMapsFilter::disable()
 bool CLomacorMapsFilter::process()
 {
     bool bReturn(false);
+    std::vector<CyC_INT> maps_metadata;
+
+    if (m_pInputFilterMapsServer != nullptr)
+    {
+        CyC_TIME_UNIT readInputTsServer = m_pInputFilterMapsServer->getTimestampStop();
+        if (readInputTsServer > m_lastTsServer)
+        {
+            if (m_pInputFilterMapsServer->getData(maps_metadata))
+            {
+                m_lastTsServer = readInputTsServer;
+
+                std::vector<std::pair<CyC_INT, std::string>> maps = decode(maps_metadata);
+
+                bReturn = true;
+            }
+        }
+    }
 
     if (bReturn)
     {
-        //updateData(???);
+        updateData(maps_metadata);
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
     
@@ -78,3 +96,51 @@ bool CLomacorMapsFilter::process()
 
 void CLomacorMapsFilter::loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path)
 {}
+
+std::vector<std::pair<CyC_INT, std::string>> CLomacorMapsFilter::decode(const std::vector<CyC_INT>& _maps_metadata)
+{
+    std::vector<std::pair<CyC_INT, std::string>> maps;
+
+    CyC_INT cr = static_cast<CyC_INT>('\n');
+    bool bIsId = false;
+    CyC_INT decoded_id;
+    std::vector<CyC_INT> decoded_link;
+
+    // Deserialize: Extract id and link from maps_metadata
+    for (const auto& q : _maps_metadata)
+    {
+        if (q == cr)
+        {
+            if (!decoded_link.empty())
+            {
+                std::string sLink;
+                for (CyC_INT val : decoded_link)
+                    sLink += static_cast<char>(val);
+                maps.emplace_back(std::make_pair(decoded_id, sLink));
+            }
+
+            bIsId = true;
+            continue;
+        }
+
+        if (bIsId)
+        {
+            decoded_id = q;
+            decoded_link.clear();
+            bIsId = false;
+            continue;
+        }
+
+        decoded_link.emplace_back(q);
+    }
+
+    if (!decoded_link.empty())
+    {
+        std::string sLink;
+        for (CyC_INT val : decoded_link)
+            sLink += static_cast<char>(val);
+        maps.emplace_back(std::make_pair(decoded_id, sLink));
+    }
+
+    return maps;
+}

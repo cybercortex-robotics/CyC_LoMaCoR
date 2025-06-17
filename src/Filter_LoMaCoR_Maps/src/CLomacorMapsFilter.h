@@ -22,6 +22,12 @@ public:
 private:
     bool process() override;
     void loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path) override;
+
+	static std::vector<std::pair<CyC_INT, std::string>> decode(const std::vector<CyC_INT>& _maps_metadata);
+
+private:
+	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
+	CyC_TIME_UNIT   m_lastTsServer = 0;
 };
 
 #endif /* CLomacorMapsFilter_H_ */

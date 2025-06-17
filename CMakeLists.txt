@@ -56,3 +56,5 @@ link_directories(${CyC_THIRD_PARTY_LIBRARY_DIRECTORIES})
 
 # Hardware sensory filters
 add_cyc_filter(Filter_LoMaCoR_Maps src/Filter_LoMaCoR_Maps)
+add_cyc_filter(Filter_LoMaCoR_Server src/Filter_LoMaCoR_Server)
+add_cyc_filter(Filter_LoMaCoR_Viz src/Filter_LoMaCoR_Viz)
