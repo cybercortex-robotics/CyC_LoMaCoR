@@ -77,9 +77,7 @@ bool CLomacorMapsFilter::process()
             if (m_pInputFilterMapsServer->getData(maps_metadata))
             {
                 m_lastTsServer = readInputTsServer;
-
                 std::vector<std::pair<CyC_INT, std::string>> maps = decode(maps_metadata);
-
                 bReturn = true;
             }
         }
@@ -87,6 +85,7 @@ bool CLomacorMapsFilter::process()
 
     if (bReturn)
     {
+        maps_metadata[0] = 2;
         updateData(maps_metadata);
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
@@ -103,12 +102,14 @@ std::vector<std::pair<CyC_INT, std::string>> CLomacorMapsFilter::decode(const st
 
     CyC_INT cr = static_cast<CyC_INT>('\n');
     bool bIsId = false;
+    CyC_INT decoded_cmd;
     CyC_INT decoded_id;
     std::vector<CyC_INT> decoded_link;
 
     // Deserialize: Extract id and link from maps_metadata
-    for (const auto& q : _maps_metadata)
+    for (int i = 1; i < _maps_metadata.size(); ++i)
     {
+        const CyC_INT q = _maps_metadata[i];
         if (q == cr)
         {
             if (!decoded_link.empty())

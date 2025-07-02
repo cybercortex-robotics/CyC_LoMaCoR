@@ -70,9 +70,11 @@ bool CLomacorServerFilter::disable()
 bool CLomacorServerFilter::process()
 {
     bool bReturn(false);
-
-    if (!m_bMapsRead)
+    
+    //if (!m_bMapsRead)
     {
+        m_MapsMetadata.clear();
+
         csv::reader csv_reader;
         if (!csv_reader.open(m_sMapsPath))
         {
@@ -80,22 +82,23 @@ bool CLomacorServerFilter::process()
             return false;
         }
 
-        CyC_INT id; std::string link;
+        CyC_INT cmd, id; std::string link;
 
         // Serialize: Add entries to maps_metadata
-        while (csv_reader.read_row(id, link))
+        while (csv_reader.read_row(cmd, id, link))
         {
+            m_MapsMetadata.emplace_back(cmd);
             m_MapsMetadata.emplace_back(static_cast<CyC_INT>('\n'));
             m_MapsMetadata.emplace_back(id);
             for (char c : link)
                 m_MapsMetadata.emplace_back(static_cast<CyC_INT>(c));
         }
-
+        
         bReturn = true;
         m_bMapsRead = true;
     }
-
-    //if (bReturn)
+    
+    if (bReturn)
     {
         updateData(m_MapsMetadata);
         std::this_thread::sleep_for(std::chrono::microseconds(10));

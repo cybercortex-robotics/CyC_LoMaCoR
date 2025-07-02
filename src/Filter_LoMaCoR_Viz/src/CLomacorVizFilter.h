@@ -23,6 +23,8 @@ private:
     void loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path) override;
 
 	bool check_map_exists(const CyC_INT& _id, const std::vector<std::pair<CyC_INT, std::string>>& _maps);
+	CycSlam read_map_data(const std::string& _map_file);
+
 	void add_dark_area(cv::Mat& _img, const cv::Rect& _rect);
 	static std::vector<std::pair<CyC_INT, std::string>> decode(const std::vector<CyC_INT>& _maps_metadata);
 
@@ -31,7 +33,8 @@ private:
 	CyC_TIME_UNIT					m_lastTsServer = 0;
 	std::vector<CCycFilterBase*>	m_pInputMapsFilters;
 
-	std::vector<std::pair<CyC_INT, std::string>> m_Maps;
+	std::vector<std::pair<CyC_INT, std::string>> m_MapsMetadata;
+	std::unordered_map<CyC_INT, CycSlam> m_Maps;
 
 	// Visualization parameters
 	cv::Size	m_SizeImgDisp;
