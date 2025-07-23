@@ -55,10 +55,10 @@
 \title{NavGraph}
 
 
-\author{Sorin~Grigorescu\% <-this % stops a space
+\author{Sorin~M.~Grigorescu and Alejandro~Suarez% <-this % stops a space
 \thanks{This work was supported by European Commision funding under the euRobin Grant no. ???.}
 \thanks{The authors are with CyberCortex Robotics and the Robotics, Vision and Control Laboratory (RovisLab) at the Department of Automation and Information Technology, Transilvania University of Brasov, 500036 Romania e-mail: (see \url{http://rovislab.com/sorin_grigorescu.html}).}% <-this % stops a space
-\thanks{Manuscript received June 9, 2025.}}
+\thanks{Manuscript received July 22, 2025.}}
 
 
 % The paper headers
@@ -70,7 +70,7 @@
 
 \begin{abstract}
 
-NavGraph
+Current SLAM-based localization is performed onboard the robot, without sharing or benefiting from an already existing map. The goal of NavGraph is to enable real-time SLAM at scale for heterogeneous teams of aerial and ground robots, using EuroCore as its backend infrastructure for storing and querying map data, and the CyberCortex.AI OS as its real-time frontend service facilitator. Since robots will navigate faster, using EuroCore maps, without the need to build maps each deployment time. The operational and hardware costs will decrease, since robots will only have to run localization, without requiring the computational expensive mapping thread. Once a robot downloads a map, it can share it with other robots, even if no internet connection is available.
 
 \end{abstract}
 
@@ -95,19 +95,54 @@ Autonomous robots, autonomy, simultaneous localization and mapping, ground robot
 \section{Introduction}
 \label{sec:introduction}
 
-\IEEEPARstart{O}{ver} the past ...
+\IEEEPARstart{O}{ne}  of the main components of an autonomous robot is its ability to localize itself and, additionally, share its location with other robots or a human operator. This is performed either locally (onboard), by mapping the environment, or using an already existing map provided by another robot or service. The map and localization information are further used for mission planning (e.g. aerial parcel delivery).
 
+NavGraph's goal is to enable different types of robotic systems to build, store and reuse EuroCore map data, provide a localization service based on EuroCore, as well as to share map data between a connected team of robots, even if no internet connection is available. The data representation ontology covers both indoor and outdoor maps.
+
+\begin{figure}
+	\centering
+	\begin{center}
+		\includegraphics[scale=1.0]{overview.png}
+		\caption{\textbf{NavGraph inference system onboard a robot}. The initializer is used to position the robot on the global map and trigger a map query from EuroCore. The SLAM manager de/serializes maps and triggers the SLAM algorithm.}
+        \label{fig:overview}
+	\end{center}
+\end{figure}
 
 \section{Related Work}
 \label{sec:related_work}
 
 \cite{ogc_geopose_2023}
-
 \cite{ogc_indoorgml_2020}
+\cite{CCM_SLAM_2019}
+\cite{COVINS_2021}
+\cite{HU2025117531}
+\cite{8934466}
+\cite{RDC_SLAM_2022}
+\cite{feng2024s3e}
+\cite{slam_share_2022}
+\cite{10918818}
 
 \section{NavGraph}
 \label{sec:navgraph}
 
+\subsection{Map Indexing}
+\label{sec:map_indexing}
+
+globally anchored and locally anchored maps
+
+organizing and linking local maps to global maps where possible, without requiring GPS in local zones.
+
+\begin{figure}
+	\centering
+	\begin{center}
+		\includegraphics[scale=1.0]{map_indexing.png}
+		\caption{\textbf{Map indexing} based on a Global Anchor. The map serialization layers are created based on the robot's sensors and SLAM algorithm.}
+        \label{fig:map_indexing}
+	\end{center}
+\end{figure}
+
+\subsection{Map Serialization}
+\label{sec:map_serialization}
 
 
 \section{Conclusions}
