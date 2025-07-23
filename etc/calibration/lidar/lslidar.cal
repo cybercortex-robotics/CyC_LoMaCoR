@@ -1,0 +1,22 @@
+// Copyright (c) 2025 CyberCortex Robotics SRL. All rights reserved
+// Author: Sorin Mihai Grigorescu
+// LS Lidar Calibration Parameters on Scout
+
+range = [0.25, 2.0];
+num_points = 1000
+
+Pose = 
+{
+	Rotation = 
+    {
+        x = 90.0;
+        y = 0.0;
+        z = 0.0;
+    }
+	Translation =
+    {
+        x = 0.0;
+        y = 0.0;
+        z = 0.0;
+    }
+}
