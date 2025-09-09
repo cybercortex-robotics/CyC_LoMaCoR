@@ -52,12 +52,12 @@
 
 \begin{document}
 
-\title{NavGraph}
+\title{NavGraph: Towards Localzation and Map Reuse in Large Scale SLAM using EuroCore}
 
 
 \author{Sorin~M.~Grigorescu and Alejandro~Suarez% <-this % stops a space
 \thanks{This work was supported by European Commision funding under the euRobin Grant no. ???.}
-\thanks{The authors are with CyberCortex Robotics and the Robotics, Vision and Control Laboratory (RovisLab) at the Department of Automation and Information Technology, Transilvania University of Brasov, 500036 Romania e-mail: (see \url{http://rovislab.com/sorin_grigorescu.html}).}% <-this % stops a space
+\thanks{The authors are with CyberCortex Robotics SRL and the Robotics, Vision and Control Laboratory (RovisLab) at the Department of Automation and Information Technology, Transilvania University of Brasov, 500036 Romania e-mail: (see \url{http://rovislab.com/sorin_grigorescu.html}).}% <-this % stops a space
 \thanks{Manuscript received July 22, 2025.}}
 
 
@@ -70,7 +70,7 @@
 
 \begin{abstract}
 
-Current SLAM-based localization is performed onboard the robot, without sharing or benefiting from an already existing map. The goal of NavGraph is to enable real-time SLAM at scale for heterogeneous teams of aerial and ground robots, using EuroCore as its backend infrastructure for storing and querying map data, and the CyberCortex.AI OS as its real-time frontend service facilitator. Since robots will navigate faster, using EuroCore maps, without the need to build maps each deployment time. The operational and hardware costs will decrease, since robots will only have to run localization, without requiring the computational expensive mapping thread. Once a robot downloads a map, it can share it with other robots, even if no internet connection is available.
+Current SLAM-based localization is performed onboard the robot, without sharing or benefiting from an already existing map. The goal of NavGraph is to enable real-time SLAM at scale for heterogeneous teams of aerial and ground robots, using EuroCore as its backend infrastructure for storing and querying map data, and the CyberCortex.AI OS as its real-time frontend service facilitator.  Once a robot downloads a map, it can share it with other robots, even if no internet connection is available.
 
 \end{abstract}
 
@@ -95,9 +95,12 @@ Autonomous robots, autonomy, simultaneous localization and mapping, ground robot
 \section{Introduction}
 \label{sec:introduction}
 
-\IEEEPARstart{O}{ne}  of the main components of an autonomous robot is its ability to localize itself and, additionally, share its location with other robots or a human operator. This is performed either locally (onboard), by mapping the environment, or using an already existing map provided by another robot or service. The map and localization information are further used for mission planning (e.g. aerial parcel delivery).
+\IEEEPARstart{O}{ne}  of the main components of an autonomous robot is its ability to localize itself and, additionally, share its location with other robots or a human operator. This is performed either locally (onboard), by mapping the environment, or using an already existing map provided by another robot or service. The map and localization information are further used for mission planning (e.g. aerial parcel delivery). Currently, there is no standardized way for representing SLAM data. We proposed the NavGraph protocol, intended to act as a standard for interchanging robotic maps and localization data.
 
-NavGraph's goal is to enable different types of robotic systems to build, store and reuse EuroCore map data, provide a localization service based on EuroCore, as well as to share map data between a connected team of robots, even if no internet connection is available. The data representation ontology covers both indoor and outdoor maps.
+NavGraph's goal is to enable different types of robotic systems to build, store and reuse EuroCore map data, provide a localization service based on EuroCore, as well as to share map data between a connected team of robots, even if no internet connection is available. The data representation ontology covers both indoor and outdoor maps. Since robots will navigate faster, using EuroCore maps, without the need to build maps each deployment time. The operational and hardware costs will decrease, since robots will only have to run localization, without requiring the computational expensive mapping thread.
+
+Our approach's European dimension is highlighted by facilitating access to the EuroCore repository, which acts as a localization and mapping service for European industrial and academic users. SLAM systems are mainly developed for local use, where the mapping and localization functions are executed in parallel. In particular, the mapping function is computationally intensive, requiring heavy bundle adjustment optimization techniques. LoMaCoR goes beyond the state-of-the-art by proposing a real-time solution for sharing maps, as well as a localization service, based on EuroCore and the CyberCortex.AI operating system.
+
 
 \begin{figure}
 	\centering
@@ -144,6 +147,18 @@ organizing and linking local maps to global maps where possible, without requiri
 \subsection{Map Serialization}
 \label{sec:map_serialization}
 
+
+\section{Implementation}
+\label{sec:implementation}
+
+\subsection{CyberCortex.AI Operating System}
+\label{sec:cyc_os}
+
+Autonomous robots and advanced automation systems rely on specialized Operating Systems (OS) that can schedule perception-and-control tasks and support real-time data exchange with other robots and remote cloud infrastructures. In our work, we use CyberCortex.AI, a robotics OS engineered for heterogeneous AI-driven robotics and complex automation. CyberCortex.AI is a decentralized, distributed operating system that allows robots to communicate seamlessly with each other as well as with high-performance computing (HPC) resources in the cloud.
+
+Robot sensory and control data are continuously streamed to HPC platforms, where AI models are trained and then deployed back to the robots. Each robotic function—such as sensor data acquisition, path planning, or motion control—is encapsulated in a \textit{DataBlock of Filters}, which can be executed locally on the robot or remotely on another robotic system. Data exchange across filters is managed by a \textit{Temporal Addressable Memory} (TAM), which serves as the intermediary between inputs and outputs.
+
+CyberCortex.AI is built around two core components: \textit{i}) the CyberCortex.AI inference system – a real-time DataBlock implementation running on embedded robotic hardware, and \textit{ii}) the CyberCortex.AI dojo – a cloud-based HPC environment for designing, training, and deploying AI algorithms.
 
 \section{Conclusions}
 \label{sec:conclusions}
