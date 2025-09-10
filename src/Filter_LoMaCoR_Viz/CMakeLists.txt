@@ -15,9 +15,14 @@ target_link_libraries(${FILTER_NAME}
 	PUBLIC
         CycCore
         CycToolkit
-        libconfig++
         libcsv
         ${CyC_OPENCV_WORLD})
+
+if (WIN32)
+    target_link_libraries(${FILTER_NAME} PUBLIC libconfig++)
+else ()
+    target_link_libraries(${FILTER_NAME} PUBLIC config++)
+endif (WIN32)
 
 # Build the filter into the filters folder
 set_target_properties(${FILTER_NAME} PROPERTIES
