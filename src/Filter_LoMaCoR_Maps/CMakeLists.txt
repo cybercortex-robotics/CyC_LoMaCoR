@@ -11,7 +11,6 @@ target_link_libraries(${FILTER_NAME}
 	PUBLIC
         CycCore
         CycToolkit
-        libcsv
         ${CyC_OPENCV_WORLD})
 
 target_link_directories(${FILTER_NAME}

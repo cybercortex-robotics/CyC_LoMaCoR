@@ -2,7 +2,7 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CLomacorServerFilter.h"
-#include <csv_reader.h>
+#include <os/CCsvReader.h>
 
 #define DYNALO_EXPORT_SYMBOLS
 #include <dynalo/symbol_helper.hpp>
