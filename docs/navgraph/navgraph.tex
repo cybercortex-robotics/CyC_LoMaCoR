@@ -99,20 +99,15 @@ Autonomous robots, autonomy, simultaneous localization and mapping, ground robot
 
 NavGraph's goal is to enable different types of robotic systems to build, store and reuse EuroCore map data, provide a localization service based on EuroCore, as well as to share map data between a connected team of robots, even if no internet connection is available. The data representation ontology covers both indoor and outdoor maps. Since robots will navigate faster, using EuroCore maps, without the need to build maps each deployment time. The operational and hardware costs will decrease, since robots will only have to run localization, without requiring the computational expensive mapping thread.
 
-Our approach's European dimension is highlighted by facilitating access to the EuroCore repository, which acts as a localization and mapping service for European industrial and academic users. SLAM systems are mainly developed for local use, where the mapping and localization functions are executed in parallel. In particular, the mapping function is computationally intensive, requiring heavy bundle adjustment optimization techniques. LoMaCoR goes beyond the state-of-the-art by proposing a real-time solution for sharing maps, as well as a localization service, based on EuroCore and the CyberCortex.AI operating system.
+The European dimension of our approach is highlighted by facilitating access to the EuroCore repository, which acts as a localization and mapping service for European industrial and academic users. SLAM systems are mainly developed for local use, where the mapping and localization functions are executed in parallel. In particular, the mapping function is computationally intensive, requiring heavy bundle adjustment optimization techniques. LoMaCoR goes beyond the state-of-the-art by proposing a real-time solution for sharing maps, as well as a localization service, based on EuroCore and the CyberCortex.AI operating system.
 
 
-\begin{figure}
-	\centering
-	\begin{center}
-		\includegraphics[scale=1.0]{overview.png}
-		\caption{\textbf{NavGraph inference system onboard a robot}. The initializer is used to position the robot on the global map and trigger a map query from EuroCore. The SLAM manager de/serializes maps and triggers the SLAM algorithm.}
-        \label{fig:overview}
-	\end{center}
-\end{figure}
+
 
 \section{Related Work}
 \label{sec:related_work}
+
+
 
 \cite{ogc_geopose_2023}
 \cite{ogc_indoorgml_2020}
@@ -150,6 +145,15 @@ organizing and linking local maps to global maps where possible, without requiri
 
 \section{Implementation}
 \label{sec:implementation}
+
+\begin{figure}
+	\centering
+	\begin{center}
+		\includegraphics[scale=1.0]{overview.png}
+		\caption{\textbf{NavGraph inference system onboard a robot}. The initializer is used to position the robot on the global map and trigger a map query from EuroCore. The SLAM manager de/serializes maps and triggers the SLAM algorithm.}
+        \label{fig:overview}
+	\end{center}
+\end{figure}
 
 \subsection{CyberCortex.AI Operating System}
 \label{sec:cyc_os}
