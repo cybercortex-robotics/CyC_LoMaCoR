@@ -2,13 +2,7 @@
 
 ## Introduction
 
-## CyberCortex.AI setup
-
-<a href="https://www.cybercortex.ai/" target="_blank">CyberCortex.AI</a> is a lightweight real-time AI operating system designed for autonomous robots and complex automation. It operates directly on embedded hardware, enabling robots to process sensory data, perform decision-making, and execute actions efficiently.
-
-This repository illustrates how to use CyberCortex.AI in a straightforward robot vision application. The example uses the <a href="https://github.com/cybercortex-robotics/inference" target="_blank">CyberCortex.AI.inference</a> system, as a submodule in the current repository.
-
-In this example, we use four filters:
+In this example, we use the following CyberCortex.AI filters:
 
 | Component | License | Source | Notes |
 | :--- | :---: | ----------: | :--- |
