@@ -27,7 +27,7 @@ The server can be configured using its configuration file ```etc/datablocks/serv
 After starting the server, the console should print the sampling time of the server:
 
 <div align="center">
-  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_server.png?raw=true" width="40%" alt="cmake_filters_enable" />
+  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_server.png?raw=true" width="60%" alt="cmake_filters_enable" />
 </div>
 
 
@@ -55,5 +55,5 @@ Download the default map file <a href="https://www.cybercortex.ai/data/filters/F
 After starting the robot's datablock, the console should print the state of all its filters:
 
 <div align="center">
-  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_robot.png?raw=true" width="40%" alt="cmake_filters_enable" />
+  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_robot.png?raw=true" width="60%" alt="cmake_filters_enable" />
 </div>
