@@ -53,7 +53,7 @@ Download the default map file <a href="https://www.cybercortex.ai/data/filters/F
 {name = "map", value = "etc/env/maps/exploratory.map"},
 ```
 
-After starting the robot's datablock, the console should print the state of all its filters:
+After starting the robot's datablock, the console should print the state of the datablock:
 
 <div align="center">
   <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_robot.png?raw=true" width="60%" alt="cmake_filters_enable" />
