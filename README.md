@@ -23,9 +23,17 @@ Configure the project in the cmake-gui utility. Enable the three local filters a
 
 ## Map server configuration
 
+The server can be configured using its configuration file ```etc/datablocks/server.conf```.
+After starting the server, the console should print the sampling time of the server:
+
+<div align="center">
+  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_server.png?raw=true" width="40%" alt="cmake_filters_enable" />
+</div>
 
 
 ## Map client configuration
+
+The client on the edge (robot datablock) can be configured using its corresponding configuration file ```etc/datablocks/robot_01.conf```.
 
 For running the Filter_Vision_VisualSlam algorithm on the robot, download the corresponding Bag of Words vocabulary file:
 
@@ -43,3 +51,9 @@ Download the default map file <a href="https://www.cybercortex.ai/data/filters/F
 ```bash
 {name = "map", value = "etc/env/maps/exploratory.map"},
 ```
+
+After starting the robot's datablock, the console should print the state of all its filters:
+
+<div align="center">
+  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_robot.png?raw=true" width="40%" alt="cmake_filters_enable" />
+</div>
