@@ -2,7 +2,8 @@
 
 ## Introduction
 
-We use the following CyberCortex.AI filters. For details regarding the CyberCortex.AI OS, please visit <a href="https://www.cybercortex.ai" target="_blank">www.cybercortex.ai</a>.
+LoMaCoR uses the following CyberCortex.AI filters. For details regarding the CyberCortex.AI OS, please visit <a href="https://www.cybercortex.ai" target="_blank">www.cybercortex.ai</a>.
+For the proprietary filters, download their binaries and place them in the ```bin/filters``` folder.
 
 | Component | License | Source | Notes |
 | :--- | :---: | ----------: | :--- |
@@ -57,3 +58,21 @@ After starting the robot's datablock, the console should print the state of all 
 <div align="center">
   <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/datablock_robot.png?raw=true" width="60%" alt="cmake_filters_enable" />
 </div>
+
+## Citation
+
+Please cite our work if you enjoy CyberCortex.AI:
+
+```
+@article{CyberCortex_AI,
+  author = {Grigorescu, Sorin and Zaha, Mihai},
+  title = {CyberCortex.AI: An AI-based operating system for autonomous robotics and complex automation},
+  journal = {Journal of Field Robotics},
+  volume = {42},
+  number = {2},
+  pages = {474-492},
+  doi = {https://doi.org/10.1002/rob.22426},
+  url = {https://onlinelibrary.wiley.com/doi/abs/10.1002/rob.22426},
+  year = {2025}
+}
+```
