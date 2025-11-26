@@ -47,6 +47,41 @@ bool CLomacorMapsFilter::enable()
             if (src.pCycFilter->getFilterType() == CStringUtils::CyC_HashFunc("CyC_LOMACOR_SERVER_FILTER_TYPE"))
                 m_pInputFilterMapsServer = src.pCycFilter;
         }
+
+        // Config parameters
+        std::string sZenodoUrl, sAccessToken;
+        if (m_CustomParameters.find("zenodo_url") != m_CustomParameters.end())
+        {
+            sZenodoUrl = m_CustomParameters.at("zenodo_url");
+        }
+        else
+        {
+            log_error("Zenodo URL required");
+            return false;
+        }
+
+        if (m_CustomParameters.find("access_token") != m_CustomParameters.end())
+        {
+            sAccessToken = m_CustomParameters.at("access_token");
+        }
+        else
+        {
+            log_error("Zenodo access token required.");
+            return false;
+        }
+
+        if (m_CustomParameters.find("city") != m_CustomParameters.end())
+        {
+            m_sCity = m_CustomParameters.at("city");
+        }
+        else
+        {
+            log_error("City required.");
+            return false;
+        }
+
+        if (!m_Zenodo.set_auth_headers(sZenodoUrl, sAccessToken))
+            return false;
     }
     
     spdlog::info("Filter [{}-{}]: CLomacorMapsFilter::enable() successful", getFilterKey().nCoreID, getFilterKey().nFilterID);

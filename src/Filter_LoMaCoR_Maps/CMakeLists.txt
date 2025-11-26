@@ -4,6 +4,8 @@
 set(FILTER_NAME Filter_LoMaCoR_Maps)
 
 add_library(${FILTER_NAME} SHARED
+    src/CZenodo.h
+    src/CZenodo.cpp
 	src/CLomacorMapsFilter.h
 	src/CLomacorMapsFilter.cpp)
 
@@ -46,3 +48,20 @@ set_target_properties(${FILTER_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CyC_FILTERS_PATH}"
     RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${CyC_FILTERS_PATH}"
 )
+
+# Zenodo test unit
+add_executable(tu_Zenodo src/tu_Zenodo.cpp src/CZenodo.h src/CZenodo.cpp)
+target_include_directories(tu_Zenodo 
+    PUBLIC 
+        ${CyC_THIRD_PARTY}/nlohmann-json/include
+#        ${CyC_THIRD_PARTY}/cpr/include
+    )
+#target_link_directories(tu_Zenodo 
+#    PUBLIC 
+#        ${CyC_THIRD_PARTY_LIBRARY_DIRECTORIES}
+#        ${CyC_THIRD_PARTY}/cpr/${CyC_LIBS_BINARY_KEY}-${CyC_CUDA_VERSION_ID}/lib
+#    )
+target_link_libraries(tu_Zenodo PUBLIC CycToolkit ${CyC_OPENCV_WORLD} cpr)
+if (NOT WIN32)
+    target_link_libraries(tu_Zenodo PUBLIC fmt::fmt)
+endif ()

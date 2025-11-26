@@ -7,6 +7,7 @@
 #include "CyC_TYPES.h"
 #include <CCycFilterBase.h>
 #include "env/COcTreeUtils.h"
+#include "CZenodo.h"
 
 class CLomacorMapsFilter : public CCycFilterBase
 {
@@ -28,6 +29,9 @@ private:
 private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
 	CyC_TIME_UNIT   m_lastTsServer = 0;
+
+	CZenodo			m_Zenodo;
+	std::string		m_sCity;
 };
 
 #endif /* CLomacorMapsFilter_H_ */
