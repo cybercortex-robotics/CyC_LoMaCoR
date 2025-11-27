@@ -82,15 +82,15 @@ bool CLomacorServerFilter::process()
             return false;
         }
 
-        CyC_INT cmd, id; std::string link;
+        CyC_INT cmd, id; std::string path;
 
         // Serialize: Add entries to maps_metadata
-        while (csv_reader.read_row(cmd, id, link))
+        while (csv_reader.read_row(cmd, id, path))
         {
             m_MapsMetadata.emplace_back(cmd);
             m_MapsMetadata.emplace_back(static_cast<CyC_INT>('\n'));
             m_MapsMetadata.emplace_back(id);
-            for (char c : link)
+            for (char c : path)
                 m_MapsMetadata.emplace_back(static_cast<CyC_INT>(c));
         }
         

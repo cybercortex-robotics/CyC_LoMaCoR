@@ -14,7 +14,7 @@ void showUsage()
     printf("\nUsage:\n"
         "tu_Zenodo [options] city_name \n\n"
         "Options:\n"
-        "  --l  # List available maps of the city"
+        "  --l  # List available maps of the city\n"
         "  --u  # Upload map\n"
         "  --d  # Download map\n"
         "  --o  # Output map (same as on Zenodo if empty)\n"
@@ -52,6 +52,7 @@ int main(int argc, char** argv)
         }
         if (strcmp(argv[i], "--u") == 0)
         {
+            bUploadMap = true;
             sUploadMapPath = argv[i + 1];
             ++i;
             continue;

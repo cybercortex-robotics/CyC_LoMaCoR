@@ -30,6 +30,9 @@ private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
 	CyC_TIME_UNIT   m_lastTsServer = 0;
 
+	CCycFilterBase* m_pInputFilterSlam = nullptr;
+	CyC_TIME_UNIT   m_lastTsSlam = 0;
+
 	CZenodo			m_Zenodo;
 	std::string		m_sCity;
 };

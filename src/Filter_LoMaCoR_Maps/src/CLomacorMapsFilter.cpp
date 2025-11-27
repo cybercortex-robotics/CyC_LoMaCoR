@@ -44,6 +44,13 @@ bool CLomacorMapsFilter::enable()
     {
         for (CycInputSource& src : getInputSources())
         {
+            switch (src.pCycFilter->getOutputDataType())
+            {
+                case CyC_SLAM:
+                    m_pInputFilterSlam = src.pCycFilter;
+                    break;
+            }
+
             if (src.pCycFilter->getFilterType() == CStringUtils::CyC_HashFunc("CyC_LOMACOR_SERVER_FILTER_TYPE"))
                 m_pInputFilterMapsServer = src.pCycFilter;
         }
@@ -104,7 +111,8 @@ bool CLomacorMapsFilter::process()
     bool bReturn(false);
     std::vector<CyC_INT> maps_metadata;
 
-    if (m_pInputFilterMapsServer != nullptr)
+    // Data from maps server
+    /*if (m_pInputFilterMapsServer != nullptr)
     {
         CyC_TIME_UNIT readInputTsServer = m_pInputFilterMapsServer->getTimestampStop();
         if (readInputTsServer > m_lastTsServer)
@@ -116,11 +124,28 @@ bool CLomacorMapsFilter::process()
                 bReturn = true;
             }
         }
+    }*/
+
+    // Data from Slam algorithm
+    if (m_pInputFilterSlam != nullptr)
+    {
+        CyC_TIME_UNIT readInputTsSlam = m_pInputFilterSlam->getTimestampStop();
+        if (readInputTsSlam > m_lastTsSlam)
+        {
+            CycSlam slam_data;
+            if (m_pInputFilterSlam->getData(slam_data))
+            {
+                /*spdlog::info("Slam mapping: {}", slam_data.is_mapping);
+
+                maps_metadata.clear();
+                maps_metadata.push_back(1);
+                bReturn = true;*/
+            }
+        }
     }
 
     if (bReturn)
     {
-        maps_metadata[0] = 2;
         updateData(maps_metadata);
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
@@ -141,7 +166,7 @@ std::vector<std::pair<CyC_INT, std::string>> CLomacorMapsFilter::decode(const st
     CyC_INT decoded_id;
     std::vector<CyC_INT> decoded_link;
 
-    // Deserialize: Extract id and link from maps_metadata
+    // Deserialize: Extract cmd, id and links from maps_metadata
     for (int i = 1; i < _maps_metadata.size(); ++i)
     {
         const CyC_INT q = _maps_metadata[i];
