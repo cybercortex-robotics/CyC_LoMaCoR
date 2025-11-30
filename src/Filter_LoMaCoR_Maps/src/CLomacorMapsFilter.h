@@ -24,7 +24,7 @@ private:
     bool process() override;
     void loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path) override;
 
-	static std::vector<std::pair<CyC_INT, std::string>> decode(const std::vector<CyC_INT>& _maps_metadata);
+	static bool decode_lomacor(const std::vector<int>& _maps_metadata, int& _out_cmd, int& _out_map_id, std::string& _out_filepath);
 
 private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
@@ -34,7 +34,9 @@ private:
 	CyC_TIME_UNIT   m_lastTsSlam = 0;
 
 	CZenodo			m_Zenodo;
+	fs::path		m_MapsFolder;
 	std::string		m_sCity;
+	unsigned int	m_nMapID = 0;
 };
 
 #endif /* CLomacorMapsFilter_H_ */

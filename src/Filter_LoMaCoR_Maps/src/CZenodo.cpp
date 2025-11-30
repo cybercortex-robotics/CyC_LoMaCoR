@@ -187,16 +187,17 @@ bool CZenodo::download_file(const long& _deposition_id, const std::string& _file
 
     std::vector<CZenodo::File> files = get_files(_deposition_id);
 
+    bool file_found = false;
     for (const auto& file : files)
     {
         if (file.name.compare(_filename_on_zenodo) == 0)
         {
-            download_file(file, _filename_local);
+            file_found = download_file(file, _filename_local);
             break;
         }
     }
 
-    return true;
+    return file_found;
 }
 
 bool CZenodo::download_file(const CZenodo::File& _file, const std::string& _filename_local)
@@ -233,7 +234,7 @@ bool CZenodo::download_file(const CZenodo::File& _file, const std::string& _file
     );
 
     output_file.close();
-
+    
     // Check the status code
     if (r_file.status_code != cpr::status::HTTP_OK)
     {

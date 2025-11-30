@@ -6,15 +6,15 @@
 #include <cpr/cpr.h>
 #include <json.hpp>
 
-const std::string ACCESS_TOKEN = "LP7zVxmRWR4WTRVWNn8pMEnyBNxyTpAEui3E2pKPMZ00tpGdtzDrLZB2dgFN";
 const std::string ZENODO_URL = "https://sandbox.zenodo.org/api/deposit/depositions";
+const std::string ACCESS_TOKEN = "LP7zVxmRWR4WTRVWNn8pMEnyBNxyTpAEui3E2pKPMZ00tpGdtzDrLZB2dgFN";
 
 void showUsage()
 {
     printf("\nUsage:\n"
-        "tu_Zenodo [options] city_name \n\n"
+        "tu_Zenodo [options] region_name \n\n"
         "Options:\n"
-        "  --l  # List available maps of the city\n"
+        "  --l  # List available maps of the region\n"
         "  --u  # Upload map\n"
         "  --d  # Download map\n"
         "  --o  # Output map (same as on Zenodo if empty)\n"
@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     bool bListMaps = false;
     bool bUploadMap = false;
     bool bDownloadMap = false;
-    std::string sCityName = argv[argc - 1];
+    std::string sRegionName = argv[argc - 1];
     std::string sUploadMapPath;
     std::string sDownloadMapName, sDownloadMapOutput;
 
@@ -81,13 +81,13 @@ int main(int argc, char** argv)
         std::cout << "\nConnected succesfully to Zenodo" << std::endl;
 
     // Check if the requested map exists
-    int nDepositionID = m_Zenodo.find_deposit(sCityName);
-    std::cout << "City '" << sCityName << "' found on Zenodo with ID '" << nDepositionID << "'" << std::endl;
+    int nDepositionID = m_Zenodo.find_deposit(sRegionName);
+    std::cout << "Region '" << sRegionName << "' found on Zenodo with ID '" << nDepositionID << "'" << std::endl;
 
     // List maps
     if (bListMaps)
     {
-        std::cout << "\nAvailable maps for '" << sCityName << "':" << std::endl;
+        std::cout << "\nAvailable maps for '" << sRegionName << "':" << std::endl;
         std::vector<CZenodo::File> maps = m_Zenodo.get_files(nDepositionID);
         for (const auto& map : maps)
             std::cout << "\t" << map.name << "\t" << map.id << std::endl;
