@@ -29,20 +29,26 @@ int main(int argc, char** argv)
     std::cout << std::fixed;
     std::cout << std::setprecision(3);
 
-    //CZip::extractZip("C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov/1.zip", 
+    //CZip::extract_zip("C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov/1.zip", 
     //    "C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov");
     
-    //CZip::createZip("C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov/1.zip", 
+    //CZip::create_zip("C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov/1.zip", 
     //    { "C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/Brasov/1.map" });
     
     std::string m_sRegion = "Brasov";
     fs::path m_MapsFolder = "../etc/env/maps";
-    int m_nMapID = 1;
-    CStateMachine m_StateMachine(m_MapsFolder, ZENODO_URL, ACCESS_TOKEN);
+    std::string maps_filetype = ".map";
+    int m_nMapID = 2;
+    int m_nIploadTh = 30;
+    CStateMachine m_StateMachine(ZENODO_URL, ACCESS_TOKEN, m_MapsFolder, maps_filetype, m_nIploadTh);
 
     // Query Zenodo for a map
-    m_StateMachine.query_map(m_sRegion, m_nMapID);
+    m_StateMachine.step(m_sRegion, m_nMapID);
+    std::cout << m_StateMachine.print_state() << std::endl << std::endl;
 
+    m_StateMachine.step(m_sRegion, m_nMapID);
+    std::cout << m_StateMachine.print_state() << std::endl << std::endl;
+    
     std::cout << std::endl;
     std::cout << "EXIT_SUCCESS" << std::endl;
 

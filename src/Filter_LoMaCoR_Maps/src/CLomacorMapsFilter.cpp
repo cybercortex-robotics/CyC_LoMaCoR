@@ -199,7 +199,7 @@ bool CLomacorMapsFilter::process()
                 // Decode
                 int _out_cmd, _out_map_id; 
                 std::string _out_filepath;
-                decode_lomacor(maps_metadata, _out_cmd, _out_map_id, _out_filepath);
+                //decode(maps_metadata, _out_cmd, _out_map_id, _out_filepath);
 
                 //spdlog::info("\tcmd {}: map {} -- {}", _out_cmd, _out_map_id, _out_filepath);
 
@@ -219,56 +219,3 @@ bool CLomacorMapsFilter::process()
 
 void CLomacorMapsFilter::loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path)
 {}
-
-bool CLomacorMapsFilter::decode_lomacor(const std::vector<int>& _metadata, int& _out_cmd, int& _out_map_id, std::string& _out_filepath)
-{
-    _out_cmd = _metadata[0];
-    _out_filepath.clear();
-
-    if (_metadata.size() < 6)
-        return false;
-
-    std::vector<std::pair<int, std::string>> maps;
-
-    int cr = static_cast<int>('\n');
-    bool bIsId = false;
-    std::vector<int> decoded_link;
-
-    // Deserialize: Extract cmd, id and links from maps_metadata
-    for (int i = 1; i < _metadata.size(); ++i)
-    {
-        const int q = _metadata[i];
-        if (q == cr)
-        {
-            if (!decoded_link.empty())
-            {
-                std::string sLink;
-                for (int val : decoded_link)
-                    sLink += static_cast<char>(val);
-                maps.emplace_back(std::make_pair(_out_map_id, sLink));
-            }
-
-            bIsId = true;
-            continue;
-        }
-
-        if (bIsId)
-        {
-            _out_map_id = q;
-            decoded_link.clear();
-            bIsId = false;
-            continue;
-        }
-
-        decoded_link.emplace_back(q);
-    }
-
-    if (!decoded_link.empty())
-    {
-        for (int val : decoded_link)
-            _out_filepath += static_cast<char>(val);
-        maps.emplace_back(std::make_pair(_out_map_id, _out_filepath));
-    }
-
-    return true;
-}

@@ -22,7 +22,7 @@ void CZip::writeFile(const std::string& path, const std::string& data)
     file.write(data.data(), data.size());
 }
 
-void CZip::createZip(const std::string& zipPath, const std::vector<std::string>& files)
+void CZip::create_zip(const std::string& zipPath, const std::vector<std::string>& files)
 {
     int errorp;
     zip_t* zip = zip_open(zipPath.c_str(),
@@ -69,7 +69,7 @@ void CZip::createZip(const std::string& zipPath, const std::vector<std::string>&
 }
 
 
-void CZip::extractZip(const std::string& zipPath, const std::string& destDir)
+void CZip::extract_zip(const std::string& zipPath, const std::string& destDir)
 {
     int errorp;
     zip_t* zip = zip_open(zipPath.c_str(), 0, &errorp);

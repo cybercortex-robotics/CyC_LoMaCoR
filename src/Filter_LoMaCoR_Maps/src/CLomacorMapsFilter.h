@@ -24,8 +24,6 @@ private:
     bool process() override;
     void loadFromDatastream(const std::string& datastream_entry, const std::string& db_root_path) override;
 
-	static bool decode_lomacor(const std::vector<int>& _maps_metadata, int& _out_cmd, int& _out_map_id, std::string& _out_filepath);
-
 private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
 	CyC_TIME_UNIT   m_lastTsServer = 0;
