@@ -7,7 +7,7 @@
 #include "CyC_TYPES.h"
 #include <CCycFilterBase.h>
 #include "env/COcTreeUtils.h"
-#include "CZenodo.h"
+#include "CStateMachine.h"
 
 class CLomacorMapsFilter : public CCycFilterBase
 {
@@ -28,12 +28,9 @@ private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
 	CyC_TIME_UNIT   m_lastTsServer = 0;
 
-	CCycFilterBase* m_pInputFilterSlam = nullptr;
-	CyC_TIME_UNIT   m_lastTsSlam = 0;
-
-	CZenodo			m_Zenodo;
+	std::unique_ptr<CStateMachine> m_pStateMachine = nullptr;
 	fs::path		m_MapsFolder;
-	std::string		m_sCity;
+	std::string		m_sRegion;
 	unsigned int	m_nMapID = 0;
 };
 

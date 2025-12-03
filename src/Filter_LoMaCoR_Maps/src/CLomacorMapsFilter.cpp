@@ -47,13 +47,6 @@ bool CLomacorMapsFilter::enable()
     {
         for (CycInputSource& src : getInputSources())
         {
-            switch (src.pCycFilter->getOutputDataType())
-            {
-                case CyC_SLAM:
-                    m_pInputFilterSlam = src.pCycFilter;
-                    break;
-            }
-
             if (src.pCycFilter->getFilterType() == CStringUtils::CyC_HashFunc("CyC_LOMACOR_SERVER_FILTER_TYPE"))
                 m_pInputFilterMapsServer = src.pCycFilter;
         }
@@ -81,15 +74,15 @@ bool CLomacorMapsFilter::enable()
             log_error("Zenodo access token required.");
             return false;
         }
-
-        // City
-        if (m_CustomParameters.find("city") != m_CustomParameters.end())
+        
+        // Region
+        if (m_CustomParameters.find("region") != m_CustomParameters.end())
         {
-            m_sCity = m_CustomParameters.at("city");
+            m_sRegion = m_CustomParameters.at("region");
         }
         else
         {
-            log_error("City required.");
+            log_error("Region required.");
             return false;
         }
 
@@ -100,7 +93,43 @@ bool CLomacorMapsFilter::enable()
         }
         else
         {
-            log_error("City required.");
+            log_error("Map required.");
+            return false;
+        }
+
+        // Map filetype
+        std::string map_filetype;
+        if (m_CustomParameters.find("map_filetype") != m_CustomParameters.end())
+        {
+            map_filetype = m_CustomParameters.at("map_filetype");
+        }
+        else
+        {
+            log_error("Map filetype required.");
+            return false;
+        }
+
+        // Upload threshold
+        int uploat_th;
+        if (m_CustomParameters.find("map_upload_th") != m_CustomParameters.end())
+        {
+            uploat_th = std::stoi(m_CustomParameters.at("map_upload_th"));
+        }
+        else
+        {
+            log_error("Map upload threshold required.");
+            return false;
+        }
+
+        // Are we allowed to map?
+        bool mapper = true;
+        if (m_CustomParameters.find("mapper") != m_CustomParameters.end())
+        {
+            CStringUtils::stringToBool(m_CustomParameters.at("mapper"), mapper);
+        }
+        else
+        {
+            log_error("Mapper setting required.");
             return false;
         }
 
@@ -111,7 +140,9 @@ bool CLomacorMapsFilter::enable()
             return false;
         }
 
-        if (!m_Zenodo.set_auth_headers(sZenodoUrl, sAccessToken))
+        m_pStateMachine = std::make_unique<CStateMachine>(sZenodoUrl, sAccessToken, m_MapsFolder, map_filetype, uploat_th, mapper);
+
+        if (!m_pStateMachine->is_active())
             return false;
     }
     
@@ -133,84 +164,15 @@ bool CLomacorMapsFilter::disable()
 bool CLomacorMapsFilter::process()
 {
     bool bReturn(false);
-    std::vector<CyC_INT> maps_metadata;
 
-    // Data from maps server
-    /*if (m_pInputFilterMapsServer != nullptr)
-    {
-        CyC_TIME_UNIT readInputTsServer = m_pInputFilterMapsServer->getTimestampStop();
-        if (readInputTsServer > m_lastTsServer)
-        {
-            if (m_pInputFilterMapsServer->getData(maps_metadata))
-            {
-                m_lastTsServer = readInputTsServer;
-                std::vector<std::pair<CyC_INT, std::string>> maps = decode(maps_metadata);
-                bReturn = true;
-            }
-        }
-    }*/
-
-    // Data from Slam algorithm
-    if (m_pInputFilterSlam != nullptr)
-    {
-        CyC_TIME_UNIT readInputTsSlam = m_pInputFilterSlam->getTimestampStop();
-        if (readInputTsSlam > m_lastTsSlam)
-        {
-            CycSlam slam_data;
-            if (m_pInputFilterSlam->getData(slam_data))
-            {
-                // Query Zenodo for a map
-                int nDepositionID = m_Zenodo.find_deposit(m_sCity);
-                if (nDepositionID >= 0)
-                {
-                    log_info("City '{}' found on Zenodo with ID '{}'", m_sCity, nDepositionID);
-
-                    std::string map_filename = std::to_string(m_nMapID) + ".zip";
-                    fs::path map_download_path = m_MapsFolder / map_filename;
-                    if (m_Zenodo.download_file(nDepositionID, map_filename, map_download_path.string()))
-                    {
-                        log_info("Downloaded '{}' map '{}' to '{}'", m_sCity, m_nMapID, map_download_path.string());
-                    }
-                    else
-                    {
-                        log_info("'{}' map '{}' not found on Zenodo", m_sCity, m_nMapID);
-                    }
-                }
-                else
-                {
-                    log_error("City '{}' not found on Zenodo", m_sCity);
-                }
-
-                // If the map is found, download the map
-
-                // Send the map to the slam system
-
-
-                maps_metadata.clear();
-
-                // Encode
-                maps_metadata.emplace_back(2); // cmd
-                maps_metadata.emplace_back(static_cast<CyC_INT>('\n')); // separator
-                maps_metadata.emplace_back(1); // Map ID
-                std::string path = "C:/dev/src/CyberCortex.AI/CyC_LoMaCoR/etc/env/maps/1.map";
-                for (char c : path)
-                    maps_metadata.emplace_back(static_cast<CyC_INT>(c));
-
-                // Decode
-                int _out_cmd, _out_map_id; 
-                std::string _out_filepath;
-                //decode(maps_metadata, _out_cmd, _out_map_id, _out_filepath);
-
-                //spdlog::info("\tcmd {}: map {} -- {}", _out_cmd, _out_map_id, _out_filepath);
-
-                bReturn = true;
-            }
-        }
-    }
+    m_pStateMachine->step(m_sRegion, m_nMapID);
+    std::vector<CyC_INT> metadata = m_pStateMachine->encode();
+    spdlog::info("{}", m_pStateMachine->print_state());
+    bReturn = true;
 
     if (bReturn)
     {
-        updateData(maps_metadata);
+        updateData(metadata);
         std::this_thread::sleep_for(std::chrono::microseconds(10));
     }
     

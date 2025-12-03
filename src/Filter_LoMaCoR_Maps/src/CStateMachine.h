@@ -13,16 +13,19 @@ class CStateMachine
 public:
     enum LomacorCmd
     {
-        CMD_BUILD_MAP = 0,
-        CMD_USE_MAP = 1
+        CMD_UNDEF = 0,
+        CMD_BUILD_MAP = 1,
+        CMD_USE_MAP = 2
     };
 
 public:
     CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, 
                   const std::string& _maps_folder, const std::string& _map_filetype,
-                  const int& _upload_th);
+                  const int& _upload_th, const bool& _is_mapper = true);
     virtual ~CStateMachine() {};
 
+    bool        is_active();
+    void        set_is_mapper(const bool& _is_mapper);
     LomacorCmd  get_cmd();
     std::string get_map_file();
     std::string get_region_name();
@@ -40,6 +43,7 @@ private:
     bool is_map_building_finished(const std::string& _map_file);
     void set_build_map();
     void set_use_map();
+    void set_undef();
 
     // Encodes to output of LoMaCoR, which will be sent to the Slam method
     // cmd, map_id, path_to_map_file
@@ -64,6 +68,7 @@ private:
     std::mutex  m_Mutex;
 
     std::chrono::seconds m_UpdateTh;
+    bool                 m_bIsMapper;
 };
 
 #endif /* CStateMachine_H_ */

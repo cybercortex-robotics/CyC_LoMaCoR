@@ -5,10 +5,11 @@
 #include "CZip.h"
 #include <chrono>
 
-CStateMachine::CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, const std::string& _maps_folder, const std::string& _map_filetype, const int& _upload_th) :
+CStateMachine::CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, const std::string& _maps_folder, const std::string& _map_filetype, const int& _upload_th, const bool& _is_mapper) :
     m_MapsFolder(_maps_folder),
     m_MapsFileType(_map_filetype),
-    m_UpdateTh(std::chrono::seconds(_upload_th))
+    m_UpdateTh(std::chrono::seconds(_upload_th)),
+    m_bIsMapper(_is_mapper)
 {
     m_Zenodo.set_auth_headers(_zenodo_url, _access_token);
 }
@@ -89,6 +90,16 @@ bool CStateMachine::decode(const std::vector<int>& _metadata, int& _out_cmd, int
     return true;
 }
 
+bool CStateMachine::is_active()
+{
+    return m_Zenodo.is_active();
+}
+
+void CStateMachine::set_is_mapper(const bool& _is_mapper)
+{
+    m_bIsMapper = _is_mapper;
+}
+
 CStateMachine::LomacorCmd CStateMachine::get_cmd()
 {
     std::lock_guard<std::mutex> lock(m_Mutex);
@@ -117,6 +128,12 @@ void CStateMachine::set_use_map()
 {
     std::lock_guard<std::mutex> lock(m_Mutex);
     m_Cmd = CMD_USE_MAP;
+}
+
+void CStateMachine::set_undef()
+{
+    std::lock_guard<std::mutex> lock(m_Mutex);
+    m_Cmd = CMD_UNDEF;
 }
 
 void CStateMachine::step(const std::string& _region, const int& _map_id)
@@ -168,7 +185,7 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
         if (!fs::remove(arch_path))
             spdlog::error("Map file '{}' could not be removed.", arch_path.string());
     }
-    else
+    else if (m_bIsMapper)
     {
         spdlog::info("'{}' map '{}' not found on Zenodo. Initiating BUILD_MAP command.", _region, _map_id);
 
@@ -191,6 +208,10 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
 
             set_use_map();
         }
+    }
+    else
+    {
+        set_undef();
     }
 }
 
