@@ -19,7 +19,7 @@ For the proprietary filters, download their binaries and place them in the ```bi
 ## Dependencies
 
 ```bash
-sudo apt install meson
+sudo apt install meson nlohmann-json3-dev 
 ```
 
 ## Setup
