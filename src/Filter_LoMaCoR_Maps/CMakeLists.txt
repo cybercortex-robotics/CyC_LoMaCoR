@@ -3,30 +3,27 @@
 
 set(FILTER_NAME Filter_LoMaCoR_Maps)
 
-set(CMAKE_SKIP_RPATH TRUE)
-
-find_package(CURL REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(nlohmann_json REQUIRED)
-
-include(FetchContent)
-
-FetchContent_Declare(
-  cpr_external
-  GIT_REPOSITORY    https://github.com/libcpr/cpr.git
-  GIT_TAG           master
-  # Tell cpr to use the system's libcurl installation
-  CMAKE_ARGS        -DCPR_USE_SYSTEM_CURL=ON 
-                    -DCPR_BUILD_TESTS=OFF 
-                    -DCPR_BUILD_EXAMPLES=OFF
-)
-FetchContent_MakeAvailable(cpr_external)
-
-
 if (NOT WIN32)
-    find_package(fmt CONFIG REQUIRED)
-endif()
+    set(CMAKE_SKIP_RPATH TRUE)
 
+    find_package(fmt CONFIG REQUIRED)
+    find_package(CURL REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(nlohmann_json REQUIRED)
+
+    include(FetchContent)
+
+    FetchContent_Declare(
+      cpr_external
+      GIT_REPOSITORY    https://github.com/libcpr/cpr.git
+      GIT_TAG           master
+      # Tell cpr to use the system's libcurl installation
+      CMAKE_ARGS        -DCPR_USE_SYSTEM_CURL=ON 
+                        -DCPR_BUILD_TESTS=OFF 
+                        -DCPR_BUILD_EXAMPLES=OFF
+    )
+    FetchContent_MakeAvailable(cpr_external)
+endif()
 
 add_library(lomacor STATIC
     src/CZenodo.h
@@ -36,18 +33,15 @@ add_library(lomacor STATIC
     src/CZip.h
     src/CZip.cpp)
 
-target_include_directories(lomacor 
-    PUBLIC 
-        #${CyC_THIRD_PARTY}/libzip/include 
-        $<TARGET_PROPERTY:cpr::cpr,INTERFACE_INCLUDE_DIRECTORIES>
-        /usr/include/nlohmann
-)
-target_link_directories(lomacor PUBLIC ${CyC_THIRD_PARTY}/libzip/${CyC_LIBS_BINARY_KEY}/lib)
-target_link_libraries(lomacor PUBLIC zip cpr::cpr 
-    #json
-    ${CURL_LIBRARIES} 
-    ${ZLIB_LIBRARIES})
-
+if (NOT WIN32)
+    target_include_directories(lomacor PUBLIC $<TARGET_PROPERTY:cpr::cpr,INTERFACE_INCLUDE_DIRECTORIES> /usr/include/nlohmann)
+    target_link_directories(lomacor PUBLIC ${CyC_THIRD_PARTY}/libzip/${CyC_LIBS_BINARY_KEY}/lib)
+    target_link_libraries(lomacor PUBLIC zip cpr::cpr ${CURL_LIBRARIES} ${ZLIB_LIBRARIES})
+elseif (WIN32)
+    target_include_directories(lomacor PUBLIC ${CyC_THIRD_PARTY}/libzip/include)
+    target_link_directories(lomacor PUBLIC ${CyC_THIRD_PARTY}/libzip/${CyC_LIBS_BINARY_KEY}/lib)
+    target_link_libraries(lomacor PUBLIC zip)
+endif ()
 
 add_library(${FILTER_NAME} SHARED
 	src/CLomacorMapsFilter.h
