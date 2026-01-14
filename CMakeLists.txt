@@ -1,4 +1,4 @@
-# Copyright (c) 2025 CyberCortex Robotics SRL. All rights reserved
+# Copyright (c) 2026 CyberCortex Robotics SRL. All rights reserved
 # Author: Sorin Mihai Grigorescu
 
 cmake_minimum_required(VERSION 3.10)
