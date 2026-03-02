@@ -4,15 +4,9 @@
 set(FILTER_NAME Filter_LoMaCoR_Maps)
 
 if (NOT WIN32)
-    set(CMAKE_SKIP_RPATH TRUE)
-
-    find_package(fmt CONFIG REQUIRED)
     find_package(CURL REQUIRED)
-    find_package(ZLIB REQUIRED)
-    find_package(nlohmann_json REQUIRED)
-
     include(FetchContent)
-
+    
     FetchContent_Declare(
       cpr_external
       GIT_REPOSITORY    https://github.com/libcpr/cpr.git
@@ -22,7 +16,14 @@ if (NOT WIN32)
                         -DCPR_BUILD_TESTS=OFF 
                         -DCPR_BUILD_EXAMPLES=OFF
     )
+    set(CPR_USE_SYSTEM_CURL ON CACHE INTERNAL "")
+    set(CPR_BUILD_TESTS OFF CACHE INTERNAL "")
+    
     FetchContent_MakeAvailable(cpr_external)
+    
+    find_package(fmt CONFIG REQUIRED)
+    find_package(ZLIB REQUIRED)
+    find_package(nlohmann_json REQUIRED)
 endif()
 
 add_library(lomacor STATIC
