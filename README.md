@@ -10,7 +10,7 @@ LoMaCoR is a localization and mapping service, which 1) enables a robot to acces
 
 CyberCortex.AI dependencies:
 ```bash
-sudo apt install libopencv-dev libfmt-dev libconfig++-dev liboctomap-dev libopenh264-dev qtbase5-dev freeglut3 libqglviewer2-qt5
+sudo apt install libopencv-dev libfmt-dev libconfig++-dev liboctomap-dev libcurl4-openssl-dev libopenh264-dev qtbase5-dev freeglut3 libqglviewer2-qt5
 ```
 
 LoMaCoR dependencies
