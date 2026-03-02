@@ -61,6 +61,16 @@ Accessing Zenodo requires a url and an access token, both specified in configura
 
 Use the test unit ```tu_Zenodo``` to manually access the Zenodo repository. The applications requires as input at least a region and te path to the credentials file.
 
+Create a new region '''Brasov''':
+```bash
+tu_Zenodo --n Brasov ../etc/credentials.conf
+```
+
+Upload map ```2.zip``` to region ```Brasov```:
+```bash
+tu_Zenodo --r Brasov --u 2.zip ../etc/credentials.conf
+```
+
 List all maps in region ```Brasov```:
 ```bash
 tu_Zenodo --r Brasov --l ../etc/credentials.conf
@@ -71,10 +81,6 @@ Download map ```1.zip``` from region ```Brasov```:
 tu_Zenodo --r Brasov --d 1.zip ../etc/credentials.conf
 ```
 
-Upload map ```2.zip``` to region ```Brasov```:
-```bash
-tu_Zenodo --r Brasov --u 2.zip ../etc/credentials.conf
-```
 
 ### Running LoMaCoR as CyberCortex.AI application
 

@@ -13,6 +13,7 @@ void showUsage()
         "tu_Zenodo [options] credentials.conf \n\n"
         "Options:\n"
         "  --r  # Region name\n"
+        "  --n  # Create a new region\n"
         "  --l  # List available maps of the region\n"
         "  --u  # Upload map\n"
         "  --d  # Download map\n"
@@ -31,6 +32,7 @@ int main(int argc, char** argv)
     bool bListMaps = false;
     bool bUploadMap = false;
     bool bDownloadMap = false;
+    bool bCreatesRegion = false;
     std::string sCredentials = argv[argc - 1];
     std::string sRegionName;
     std::string sUploadMapPath;
@@ -47,6 +49,13 @@ int main(int argc, char** argv)
     {
         if (strcmp(argv[i], "--r") == 0)
         {
+            sRegionName = argv[i + 1];
+            ++i;
+            continue;
+        }
+        else if (strcmp(argv[i], "--n") == 0)
+        {
+            bCreatesRegion = true;
             sRegionName = argv[i + 1];
             ++i;
             continue;
@@ -84,14 +93,46 @@ int main(int argc, char** argv)
     // Zenodo object (retrieves the list of deposits)
     CZenodo m_Zenodo(sCredentials);
     if (m_Zenodo.is_active())
+    {
         std::cout << "\nConnected succesfully to Zenodo" << std::endl;
+    }
+    else
+    {
+        std::cout << "Could not connect to Zenodo" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     // Check if the requested map exists
     int nDepositionID = m_Zenodo.find_deposit(sRegionName);
-    if (nDepositionID > 0)
-        std::cout << "Region '" << sRegionName << "' found on Zenodo with ID '" << nDepositionID << "'." << std::endl;
+    if (bCreatesRegion)
+    {
+        if (nDepositionID > 0)
+        {
+            std::cout << "Region '" << sRegionName << "' already exist in Zenodo with ID '" << nDepositionID << "'. Choose a diferent name." << std::endl;
+            return EXIT_FAILURE;;
+        }
+        else
+        {
+            int new_deposit_id = m_Zenodo.create_deposit(sRegionName, "Region " + sRegionName);
+            if (new_deposit_id > 0)
+                std::cout << "Region '" << sRegionName << "' created successfully on Zenodo with ID '" << new_deposit_id << "'." << std::endl;
+            else
+                std::cout << "Could not create region '" << sRegionName << "' on Zenodo" << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
     else
-        std::cout << "Region '" << sRegionName << "' could not be found." << std::endl;
+    {
+        if (nDepositionID > 0)
+        {
+            std::cout << "Region '" << sRegionName << "' found on Zenodo with ID '" << nDepositionID << "'." << std::endl;
+        }
+        else
+        {
+            std::cout << "Region '" << sRegionName << "' could not be found." << std::endl;
+            return EXIT_FAILURE;
+        }
+    }
 
     // List maps
     if (bListMaps)

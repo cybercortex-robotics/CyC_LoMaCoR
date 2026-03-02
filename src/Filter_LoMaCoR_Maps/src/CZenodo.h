@@ -48,6 +48,7 @@ public:
 
     std::vector<Deposit> deposits() { return m_Deposits; };
     int find_deposit(const std::string& _deposit_name); // Returns the deposit's ID
+    int create_deposit(const std::string& _deposit_name, const std::string& _description, const std::string& _upload_type = "poster");
 
     std::vector<File> get_files(const int& _deposition_id);
     bool upload_file(const int& _deposition_id, const std::string& _filepath);

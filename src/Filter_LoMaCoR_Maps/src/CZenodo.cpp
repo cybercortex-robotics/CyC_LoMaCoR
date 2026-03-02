@@ -294,3 +294,58 @@ bool CZenodo::download_file(const CZenodo::File& _file, const std::string& _file
 
     return true;
 }
+
+int CZenodo::create_deposit(const std::string& _title, const std::string& _description, const std::string& _upload_type)
+{
+    if (!m_bIsActive)
+    {
+        spdlog::error("CZenodo::create_deposition(): No active connection.");
+        return -1;
+    }
+
+    // Define the minimum metadata required by Zenodo API
+    nlohmann::json upload_metadata = {
+        {"metadata", {
+            {"title", _title},
+            {"upload_type", _upload_type},
+            {"description", _description},
+            {"creators", nlohmann::json::array({
+                {{"name", "CyberCortex Robotics"}} // You can make this a parameter if needed
+            })}
+        }}
+    };
+
+    // Perform the POST request
+    cpr::Response r = cpr::Post(
+        cpr::Url{ m_sZenodoUrl },
+        get_auth_headers(),
+        cpr::Body{ upload_metadata.dump() }
+    );
+
+    // Zenodo usually returns 201 Created for successful deposition creation
+    if (r.status_code != cpr::status::HTTP_CREATED && r.status_code != cpr::status::HTTP_OK)
+    {
+        spdlog::error("CZenodo::create_deposition(): Failed. Status: {}, Response: {}", r.status_code, r.text);
+        return -1;
+    }
+
+    try
+    {
+        nlohmann::json response_json = nlohmann::json::parse(r.text);
+        int new_id = response_json.value("id", -1);
+
+        if (new_id != -1)
+        {
+            // Update local cache of deposits
+            m_Deposits.emplace_back(new_id, _title);
+            spdlog::info("CZenodo::create_deposition(): Successfully created deposition '{}' with ID: {}", _title, new_id);
+            return new_id;
+        }
+    }
+    catch (const nlohmann::json::exception& e)
+    {
+        spdlog::error("CZenodo::create_deposition(): JSON Parsing Error: {}", e.what());
+    }
+
+    return -1;
+}
