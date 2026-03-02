@@ -2,6 +2,112 @@
 
 ## Introduction
 
+LoMaCoR is a localization and mapping service, which 1) enables a robot to access and retrieve SLAM maps stored in the EuroCore cloud, and 2) if a requested map area is not available, enable a robot to upload a new map on EuroCore, in order for other robots to access it via EuroCore.
+
+## Quick start
+
+### Dependencies ###
+
+```bash
+sudo apt install meson nlohmann-json3-dev 
+```
+
+### Running the binaries
+
+Download the binaries corresponding to you specific operating system from the Releases github section, or compile from source:
+
+### Compile from source
+
+Clone the repository, create the build folder and update the git submodules:
+
+```bash
+git clone https://github.com/cybercortex-robotics/CyC_LoMaCoR.git
+cd CyC_LoMaCoR
+mkdir build
+```
+
+While in the ```CyC_LoMaCoR``` folder, update the git submodule dependencies:
+```bash
+git submodule update --init --remote
+```
+
+Run ```cmake-gui``` and press Configure. Then activate the ```Build_App_CycCore```, ```Build_Filter_LoMaCoR_Maps``` and ```Build_Filter_LoMaCoR_Viz``` components:
+
+<div align="center">
+  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/cmake_filters_enable.png?raw=true" width="40%" alt="cmake_filters_enable" />
+</div>
+
+In ```cmake-gui``` press Configure, followed by Generate.
+
+Go the the build folder and compile the project:
+```bash
+cd build
+make -j$(nproc)
+```
+
+### Configure Zenodo access
+
+Accessing Zenodo requires a url and an access token, both specified in configuration file ```etc/credentials.conf```
+
+### Testing the LoMaCoR library
+
+Use the test unit ```tu_Zenodo``` to manually access the Zenodo repository. The applications requires as input at least a region and te path to the credentials file.
+
+List all maps in region ```Brasov```:
+```bash
+tu_Zenodo --r Brasov --l ../etc/credentials.conf
+```
+
+Download map ```1.zip``` from region ```Brasov```:
+```bash
+tu_Zenodo --r Brasov --d 1.zip ../etc/credentials.conf
+```
+
+Upload map ```2.zip``` to region ```Brasov```:
+```bash
+tu_Zenodo --r Brasov --u 2.zip ../etc/credentials.conf
+```
+
+### Running LoMaCoR as CyberCortex.AI application
+
+The LoMaCoR library can be run in the back ground using <a href="https://github.com/cybercortex-robotics/CyC_inference" target="_blank">CyberCortex.AI</a>. From the ```bin``` folder, run:
+```bash
+AppCycCore ../etc/datablocks/cyc.conf
+```
+
+```cyc.conf``` contains the configuration of the Lomacor filter:
+
+```bash
+Lomacor:
+{
+    ID              = 1
+    Active          = True
+    Type            = "CyC_LOMACOR_MAPS_FILTER_TYPE"
+    IsPublishable   = True
+    ReplayFromDB    = False
+    dt              = 1.0
+    dt_Sequencing   = 1.0
+    InputSources    = ()
+    Parameters      = (
+                        {name = "zenodo_url", value = "https://sandbox.zenodo.org/api/deposit/depositions"},
+                        {name = "access_token", value = "LP7zVxmRWR4WTRVWNn8pMEnyBNxyTpAEui3E2pKPMZ00tpGdtzDrLZB2dgFN"},
+                        {name = "region", value = "Brasov"},
+                        {name = "maps_folder", value = "etc/env/maps"},
+                        {name = "map", value = "1"},
+                        {name = "map_filetype", value = ".map"},
+                        {name = "map_upload_th", value = "30"},
+                        {name = "mapper", value = "true"}
+                      )
+}
+```
+
+The parameters are the Zenodo url and access token, the region's name, the maps folder, the name of the map to monitor and its extension, an upload threshold and a boolean value specifying if the robot is a mapper (maps the area and uploads the resulting map to Zenodo), or not (downloads a map from Zenodo).
+
+The application is completly decoupled from the SLAM system by monitoring only the given map file. If the robot is a mapper, the map file is uploaded to Zenodo only if the map file how not been rewritten more than ```map_upload_th``` [sec]. If the robot queries the map from Zenodo (```mapper = false```), then LoMaCoR will download the map automaticaly once it is available on Zenodo.
+
+
+## LoMaCoR in a complete CyberCortex.AI SLAM solution
+
 LoMaCoR uses the following CyberCortex.AI filters. For details regarding the CyberCortex.AI OS, please visit <a href="https://www.cybercortex.ai" target="_blank">www.cybercortex.ai</a>.
 For the proprietary filters, download their binaries and place them in the ```bin/filters``` folder.
 
@@ -16,29 +122,10 @@ For the proprietary filters, download their binaries and place them in the ```bi
 | **Filter_Vision_VisualSlam** | 🔒 proprietary | <a href="https://www.cybercortex.ai/data/filters/Filter_Vision_VisualSlam/linux-gcc-x64-ubuntu-24/Filter_Vision_VisualSlam.zip" target="_blank">linux-gcc-x64 (ubuntu 24)</a> <br> linux-gcc-arm-x64 <br> win-msvc-x64 | Communication between distributed DataBlocks (including CyberCortex.AI Droids). |
 | **Filter_Visualization_Sensing** | 🔒 proprietary | <a href="https://www.cybercortex.ai/data/filters/Filter_Visualization_Sensing/linux-gcc-x64-ubuntu-24/Filter_Visualization_Sensing.zip" target="_blank">linux-gcc-x64 (ubuntu 24)</a> <br> linux-gcc-arm-x64 <br> <a href="https://www.cybercortex.ai/data/filters/Filter_Visualization_Sensing/win-msvc-x64/Filter_Visualization_Sensing.zip" target="_blank">win-msvc-x64</a> | Visualization of input and output filters results. |
 
-## Dependencies
 
-```bash
-sudo apt install meson nlohmann-json3-dev 
-```
+## Mapper configuration
 
-## Setup
-
-Clone this repo and update its submodules:
-```bash
-git clone https://github.com/cybercortex-robotics/CyC_LoMaCoR.git
-git submodule update --remote --init
-```
-
-Configure the project in the cmake-gui utility. Enable the three local filters and the application inference core:
-
-<div align="center">
-  <img src="https://github.com/cybercortex-robotics/CyC_LoMaCoR/blob/main/figures/cmake_filters_enable.png?raw=true" width="40%" alt="cmake_filters_enable" />
-</div>
-
-## Map server configuration
-
-The server can be configured using its configuration file ```etc/datablocks/server.conf```.
+The mapper robot can be configured using its configuration file ```etc/datablocks/mapper.conf```.
 After starting the server, the console should print the sampling time of the server:
 
 <div align="center">
@@ -48,7 +135,7 @@ After starting the server, the console should print the sampling time of the ser
 
 ## Map client configuration
 
-The client on the edge (robot datablock) can be configured using its corresponding configuration file ```etc/datablocks/robot_01.conf```.
+The client on the edge (robot datablock) can be configured using its corresponding configuration file ```etc/datablocks/robot.conf```.
 
 For running the Filter_Vision_VisualSlam algorithm on the robot, download the corresponding Bag of Words vocabulary file:
 

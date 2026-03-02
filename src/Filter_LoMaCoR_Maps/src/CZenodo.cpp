@@ -2,6 +2,54 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CZenodo.h"
+#include "os/CyC_FILESYSTEM.h"
+#pragma warning(disable : 4275)
+#include <libconfig.h++>
+#pragma warning(default : 4275)
+
+CZenodo::CZenodo(const std::string& _credentials_file)
+{
+    std::string zenodo_url, access_token;
+
+    if (!fs::exists(_credentials_file.c_str()))
+    {
+        spdlog::error("CZenodo: Credentials file '{}' not found.", _credentials_file);
+        return;
+    }
+
+    libconfig::Config configFile;
+    try
+    {
+        configFile.readFile(_credentials_file.c_str());
+    }
+    catch (libconfig::ParseException& ex)
+    {
+        spdlog::error("CZenodo: Failed to read configuration with error: {} at line {}", ex.getError(), ex.getLine());
+        return;
+    }
+
+    if (!configFile.exists("ZENODO_URL"))
+    {
+        spdlog::error("CZenodo: 'ZENODO_URL' missing in the credentials file");
+        return;
+    }
+    else
+    {
+        configFile.lookupValue("ZENODO_URL", zenodo_url);
+    }
+
+    if (!configFile.exists("ACCESS_TOKEN"))
+    {
+        spdlog::error("CZenodo: 'ACCESS_TOKEN' missing in the credentials file");
+        return;
+    }
+    else
+    {
+        configFile.lookupValue("ACCESS_TOKEN", access_token);
+    }
+
+    set_auth_headers(zenodo_url, access_token);
+}
 
 CZenodo::CZenodo(const std::string& _zenodo_url, const std::string& _access_token)
 {
@@ -66,7 +114,7 @@ int CZenodo::find_deposit(const std::string& _deposit_name)
 {
     if (!m_bIsActive)
     {
-        spdlog::error("CZenodo::download_file(): No active connection.");
+        spdlog::error("CZenodo::find_deposit(): No active connection.");
         return false;
     }
 
@@ -88,7 +136,7 @@ bool CZenodo::upload_file(const int& _deposition_id, const std::string& _filepat
 {
     if (!m_bIsActive)
     {
-        spdlog::error("CZenodo::download_file(): No active connection.");
+        spdlog::error("CZenodo::upload_file(): No active connection.");
         return false;
     }
 
@@ -132,7 +180,7 @@ std::vector<CZenodo::File> CZenodo::get_files(const int& _deposition_id)
 
     if (!m_bIsActive)
     {
-        spdlog::error("CZenodo::download_file(): No active connection.");
+        spdlog::error("CZenodo::get_files(): No active connection.");
         return files;
     }
 

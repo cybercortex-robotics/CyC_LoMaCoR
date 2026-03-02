@@ -12,14 +12,15 @@ const std::string ACCESS_TOKEN = "LP7zVxmRWR4WTRVWNn8pMEnyBNxyTpAEui3E2pKPMZ00tp
 void showUsage()
 {
     printf("\nUsage:\n"
-        "tu_Lomacor [options] region_name \n\n"
+        "tu_Lomacor [options] credentials.conf \n\n"
         "Options:\n"
+        "  --r  # Region name\n"
         "  --l  # List available maps of the region\n"
         "  --u  # Upload map\n"
         "  --d  # Download map\n"
-        "  --o  # Output map (same as on Zenodo if empty)\n"
+        "  --o  # Path for downloading a map (if empty, same as current folder and map name on Zenodo)\n"
         "\n"
-        "eg: tu_Lomacor Brasov\n");
+        "eg: tu_Lomacor ../etc/credentials.conf\n");
     exit(1);
 }
 
@@ -31,10 +32,10 @@ int main(int argc, char** argv)
 
     std::string m_sRegion = "Brasov";
     fs::path m_MapsFolder = "../etc/env/maps";
-    std::string maps_filetype = ".map";
+    std::string maps_file_ext = ".map";
     int m_nMapID = 2;
     int m_nUploadTh = 30;
-    CStateMachine m_StateMachine(ZENODO_URL, ACCESS_TOKEN, m_MapsFolder, maps_filetype, m_nUploadTh, false);
+    CStateMachine m_StateMachine(ZENODO_URL, ACCESS_TOKEN, m_MapsFolder, maps_file_ext, m_nUploadTh, false);
 
     // Query Zenodo for a map
     m_StateMachine.step(m_sRegion, m_nMapID);

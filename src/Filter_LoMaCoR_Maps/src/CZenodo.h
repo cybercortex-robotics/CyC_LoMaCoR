@@ -39,6 +39,7 @@ public:
 
 public:
     CZenodo() {};
+    CZenodo(const std::string& _credentials_file);
     CZenodo(const std::string& _zenodo_url, const std::string& _access_token);
     virtual ~CZenodo() {};
 
