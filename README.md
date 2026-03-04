@@ -81,6 +81,9 @@ Download map ```1.zip``` from region ```Brasov```:
 tu_Zenodo --r Brasov --d 1.zip ../etc/credentials.conf
 ```
 
+### Python implementation
+
+The Python implementation for accesing Zenodo is available in the ```resources/tu_Zenodo.py``` script. 
 
 ### Running LoMaCoR as CyberCortex.AI application
 
