@@ -22,7 +22,7 @@ Install the ```CPR``` library from <a href="https://github.com/libcpr/cpr" targe
 
 ### Running the binaries
 
-Download the binaries corresponding to you specific operating system from the Releases github section, or compile from source:
+Download the binaries corresponding to you specific operating system from the <a href="https://github.com/cybercortex-robotics/CyC_LoMaCoR/releases" target="_blank">Releases</a> github section, or compile from source.
 
 ### Compile from source
 
