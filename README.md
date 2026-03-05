@@ -15,7 +15,7 @@ sudo apt install libopencv-dev libfmt-dev libconfig++-dev liboctomap-dev libcurl
 
 LoMaCoR dependencies
 ```bash
-sudo apt install libpsl-dev meson nlohmann-json3-dev 
+sudo apt install libzip-dev libpsl-dev meson nlohmann-json3-dev 
 ```
 
 Install the ```CPR``` library from <a href="https://github.com/libcpr/cpr" target="_blank">https://github.com/libcpr/cpr</a>
