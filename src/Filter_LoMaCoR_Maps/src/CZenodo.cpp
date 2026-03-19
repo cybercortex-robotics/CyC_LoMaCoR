@@ -9,7 +9,7 @@
 
 CZenodo::CZenodo(const std::string& _credentials_file)
 {
-    std::string zenodo_url, access_token;
+    std::string name, zenodo_url, access_token;
 
     if (!fs::exists(_credentials_file.c_str()))
     {
@@ -28,6 +28,18 @@ CZenodo::CZenodo(const std::string& _credentials_file)
         return;
     }
 
+    // Creator name
+    if (!configFile.exists("NAME"))
+    {
+        spdlog::error("CZenodo: 'NAME' missing in the credentials file");
+        return;
+    }
+    else
+    {
+        configFile.lookupValue("NAME", name);
+    }
+
+    // URL
     if (!configFile.exists("ZENODO_URL"))
     {
         spdlog::error("CZenodo: 'ZENODO_URL' missing in the credentials file");
@@ -38,6 +50,7 @@ CZenodo::CZenodo(const std::string& _credentials_file)
         configFile.lookupValue("ZENODO_URL", zenodo_url);
     }
 
+    // Acces token
     if (!configFile.exists("ACCESS_TOKEN"))
     {
         spdlog::error("CZenodo: 'ACCESS_TOKEN' missing in the credentials file");
@@ -48,15 +61,15 @@ CZenodo::CZenodo(const std::string& _credentials_file)
         configFile.lookupValue("ACCESS_TOKEN", access_token);
     }
 
-    set_auth_headers(zenodo_url, access_token);
+    set_auth_headers(name, zenodo_url, access_token);
 }
 
-CZenodo::CZenodo(const std::string& _zenodo_url, const std::string& _access_token)
+CZenodo::CZenodo(const std::string& _name, const std::string& _zenodo_url, const std::string& _access_token)
 {
-    set_auth_headers(_zenodo_url, _access_token);
+    set_auth_headers(_name, _zenodo_url, _access_token);
 }
 
-bool CZenodo::set_auth_headers(const std::string& _zenodo_url, const std::string& _access_token)
+bool CZenodo::set_auth_headers(const std::string& _name, const std::string& _zenodo_url, const std::string& _access_token)
 {
     m_Deposits.clear();
 
@@ -95,6 +108,7 @@ bool CZenodo::set_auth_headers(const std::string& _zenodo_url, const std::string
         return false;
     }
 
+    m_sName = _name;
     m_sZenodoUrl = _zenodo_url;
     m_sAccessToken = _access_token;
     m_bIsActive = true;
@@ -299,52 +313,91 @@ int CZenodo::create_deposit(const std::string& _title, const std::string& _descr
 {
     if (!m_bIsActive)
     {
-        spdlog::error("CZenodo::create_deposition(): No active connection.");
+        spdlog::error("CZenodo::create_deposit(): No active connection.");
         return -1;
     }
 
-    // Define the minimum metadata required by Zenodo API
+    // 1. Define the metadata
     nlohmann::json upload_metadata = {
         {"metadata", {
             {"title", _title},
             {"upload_type", _upload_type},
+            {"access_right", "open"},
             {"description", _description},
             {"creators", nlohmann::json::array({
-                {{"name", "CyberCortex Robotics"}} // You can make this a parameter if needed
+                {{"name", m_sName}}
             })}
         }}
     };
 
-    // Perform the POST request
+    // 2. Perform the POST request to create the draft
     cpr::Response r = cpr::Post(
         cpr::Url{ m_sZenodoUrl },
         get_auth_headers(),
-        cpr::Body{ upload_metadata.dump() }
+        cpr::Body{ upload_metadata.dump() },
+        cpr::Header{ {"Content-Type", "application/json"} } // Ensure JSON content type
     );
 
-    // Zenodo usually returns 201 Created for successful deposition creation
     if (r.status_code != cpr::status::HTTP_CREATED && r.status_code != cpr::status::HTTP_OK)
     {
-        spdlog::error("CZenodo::create_deposition(): Failed. Status: {}, Response: {}", r.status_code, r.text);
+        spdlog::error("CZenodo::create_deposit(): Creation failed. Status: {}, Response: {}", r.status_code, r.text);
         return -1;
     }
 
+    int new_id = -1;
     try
     {
         nlohmann::json response_json = nlohmann::json::parse(r.text);
-        int new_id = response_json.value("id", -1);
-
-        if (new_id != -1)
-        {
-            // Update local cache of deposits
-            m_Deposits.emplace_back(new_id, _title);
-            spdlog::info("CZenodo::create_deposition(): Successfully created deposition '{}' with ID: {}", _title, new_id);
-            return new_id;
-        }
+        new_id = response_json.value("id", -1);
     }
     catch (const nlohmann::json::exception& e)
     {
-        spdlog::error("CZenodo::create_deposition(): JSON Parsing Error: {}", e.what());
+        spdlog::error("CZenodo::create_deposit(): JSON Parsing Error: {}", e.what());
+        return -1;
+    }
+
+    // 3. Optional: Add files here if needed before publishing
+    // Note: Zenodo requires at least 1 file to be present to publish.
+    if (new_id != -1)
+    {
+        std::string dummy_path = "cyckeep";
+        std::ofstream dummy_file(dummy_path);
+        if (dummy_file.is_open()) {
+            dummy_file.close();
+        }
+
+        upload_file(new_id, dummy_path);
+
+        if (std::filesystem::exists(dummy_path))
+            std::filesystem::remove(dummy_path);
+    }
+
+    // 4. Perform the Publish Action
+    if (new_id != -1)
+    {
+        std::string publish_url = m_sZenodoUrl + "/" + std::to_string(new_id) + "/actions/publish";
+
+        cpr::Response r_pub = cpr::Post(
+            cpr::Url{ publish_url },
+            get_auth_headers()
+        );
+
+        if (r_pub.status_code == cpr::status::HTTP_ACCEPTED || r_pub.status_code == cpr::status::HTTP_OK)
+        {
+            spdlog::info("CZenodo::create_deposit(): Successfully created and PUBLISHED '{}' with ID: {}", _title, new_id);
+
+            // Update local cache
+            m_Deposits.emplace_back(new_id, _title);
+            return new_id;
+        }
+        else
+        {
+            // If this fails, the record still exists as a DRAFT.
+            spdlog::warn("CZenodo::create_deposit(): Created draft {}, but PUBLISH failed (Status: {}). Check if files are attached.", new_id, r_pub.status_code);
+            spdlog::debug("Zenodo Response: {}", r_pub.text);
+
+            return new_id; // Still return the ID so the user can manage the draft
+        }
     }
 
     return -1;

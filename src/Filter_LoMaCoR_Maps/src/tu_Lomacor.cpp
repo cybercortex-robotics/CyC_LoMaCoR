@@ -6,6 +6,7 @@
 #include "CStateMachine.h"
 #include "CZip.h"
 
+const std::string NAME = "CyberCortex Robotics";
 const std::string ZENODO_URL = "https://sandbox.zenodo.org/api/deposit/depositions";
 const std::string ACCESS_TOKEN = "LP7zVxmRWR4WTRVWNn8pMEnyBNxyTpAEui3E2pKPMZ00tpGdtzDrLZB2dgFN";
 
@@ -35,7 +36,7 @@ int main(int argc, char** argv)
     std::string maps_file_ext = ".map";
     int m_nMapID = 2;
     int m_nUploadTh = 30;
-    CStateMachine m_StateMachine(ZENODO_URL, ACCESS_TOKEN, m_MapsFolder, maps_file_ext, m_nUploadTh, false);
+    CStateMachine m_StateMachine(ZENODO_URL, ACCESS_TOKEN, m_MapsFolder, maps_file_ext, m_nUploadTh, false, NAME);
 
     // Query Zenodo for a map
     m_StateMachine.step(m_sRegion, m_nMapID);

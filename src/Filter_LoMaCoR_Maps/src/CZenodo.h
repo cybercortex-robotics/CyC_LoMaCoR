@@ -40,15 +40,15 @@ public:
 public:
     CZenodo() {};
     CZenodo(const std::string& _credentials_file);
-    CZenodo(const std::string& _zenodo_url, const std::string& _access_token);
+    CZenodo(const std::string& _name, const std::string& _zenodo_url, const std::string& _access_token);
     virtual ~CZenodo() {};
 
     bool is_active() { return m_bIsActive; };
-    bool set_auth_headers(const std::string& _zenodo_url, const std::string& _access_token);
+    bool set_auth_headers(const std::string& _name, const std::string& _zenodo_url, const std::string& _access_token);
 
     std::vector<Deposit> deposits() { return m_Deposits; };
     int find_deposit(const std::string& _deposit_name); // Returns the deposit's ID
-    int create_deposit(const std::string& _deposit_name, const std::string& _description, const std::string& _upload_type = "poster");
+    int create_deposit(const std::string& _deposit_name, const std::string& _description, const std::string& _upload_type = "dataset");
 
     std::vector<File> get_files(const int& _deposition_id);
     bool upload_file(const int& _deposition_id, const std::string& _filepath);
@@ -60,6 +60,7 @@ private:
 
 private:
     bool        m_bIsActive = false;
+    std::string m_sName;
     std::string m_sAccessToken;
     std::string m_sZenodoUrl;
 

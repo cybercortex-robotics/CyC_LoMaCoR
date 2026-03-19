@@ -54,7 +54,23 @@ class CZenodo:
             response = requests.get(self.url, headers=headers)
             if response.status_code == 200:
                 data = response.json()
-                self.deposits = [{"id": d["id"], "title": d["title"]} for d in data]
+
+                # Check if it's the Records API structure (has 'hits')
+                # or the Deposition API structure (is a list)
+                if isinstance(data, dict) and "hits" in data:
+                    items = data["hits"]["hits"]
+                elif isinstance(data, list):
+                    items = data
+                else:
+                    items = []
+
+                # Use 'metadata' block for Records API, or top-level for Deposition API
+                self.deposits = []
+                for d in items:
+                    # Records API wraps title/type inside 'metadata'
+                    title = d.get("metadata", {}).get("title") if "metadata" in d else d.get("title")
+                    self.deposits.append({"id": d["id"], "title": title})
+
                 self.active = True
                 return True
         except Exception as e:
@@ -64,9 +80,30 @@ class CZenodo:
         return False
 
     def find_deposit(self, name):
-        for d in self.deposits:
-            if d["title"] == name:
-                return d["id"]
+        """Search Zenodo for a record with a specific title."""
+        headers = {"Authorization": f"Bearer {self.token}"}
+        # Use the 'q' parameter to search specifically for the title
+        # We also use 'size=1' because we only need the first match
+        params = {'q': f'title:"{name}"', 'size': 1}
+
+        try:
+            r = requests.get(self.url, headers=headers, params=params)
+            if r.status_code == 200:
+                data = r.json()
+
+                # Handle both Records API (hits) and Deposition API (list)
+                items = data["hits"]["hits"] if isinstance(data, dict) and "hits" in data else data
+
+                if items and len(items) > 0:
+                    # Double check the title matches exactly
+                    # Records API stores title in ['metadata']['title']
+                    item = items[0]
+                    metadata = item.get("metadata", item)
+                    if metadata.get("title") == name:
+                        return item["id"]
+        except Exception as e:
+            print(f"Search error: {e}")
+
         return -1
 
     def create_deposit(self, title, description, upload_type="dataset"):
@@ -96,7 +133,13 @@ class CZenodo:
         r = requests.get(f"{self.url}/{deposit_id}/files", headers=headers)
 
         if r.status_code == 200:
-            return r.json()  # Returns list of file objects
+            data = r.json()
+            # Records API (Published) stores files in 'entries'
+            if isinstance(data, dict) and "entries" in data:
+                return data["entries"]
+            # Deposition API (Drafts) returns a direct list
+            elif isinstance(data, list):
+                return data
         return []
 
     def upload_file(self, deposit_id, filepath):
@@ -184,7 +227,10 @@ def main():
         print(f"\nAvailable maps for '{region_name}':")
         maps = zenodo.get_files(deposit_id)
         for m in maps:
-            print(f"\t{m['filename']}\t{m['id']}")
+            # Use .get() to avoid KeyErrors if one doesn't exist
+            fname = m.get('key') or m.get('filename') or "unknown_file"
+            fid = m.get('id') or m.get('file_id') or "N/A"
+            print(f"\t{fname}\t{fid}")
 
     # Upload
     if args.u:
