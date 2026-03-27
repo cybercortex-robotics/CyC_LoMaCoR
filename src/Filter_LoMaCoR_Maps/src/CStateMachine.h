@@ -22,7 +22,7 @@ public:
     CStateMachine(const std::string& _zenodo_url, const std::string& _access_token,
                   const std::string& _maps_folder, const std::string& _map_filetype,
                   const int& _upload_th, const bool& _is_mapper = true,
-                  const std::string& _name = "");
+                  const std::string& _family_name = "", const std::string& _given_name = "", const std::string& _affiliation = "");
     virtual ~CStateMachine() {};
 
     bool        is_active();

@@ -2,16 +2,20 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CStateMachine.h"
+#include "os/CFileUtils.h"
 #include "CZip.h"
 #include <chrono>
 
-CStateMachine::CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, const std::string& _maps_folder, const std::string& _map_filetype, const int& _upload_th, const bool& _is_mapper, const std::string& _name) :
+CStateMachine::CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, 
+    const std::string& _maps_folder, const std::string& _map_filetype, 
+    const int& _upload_th, const bool& _is_mapper, 
+    const std::string& _family_name, const std::string& _given_name, const std::string& _affiliation) :
     m_MapsFolder(_maps_folder),
     m_MapsFileType(_map_filetype),
     m_UpdateTh(std::chrono::seconds(_upload_th)),
     m_bIsMapper(_is_mapper)
 {
-    m_Zenodo.set_auth_headers(_name, _zenodo_url, _access_token);
+    m_Zenodo.set_auth_headers(_family_name, _given_name, _affiliation, _zenodo_url, _access_token);
 }
 
 std::vector<int> CStateMachine::encode(const int& _cmd, const int& _map_id, std::string& _local_path)
@@ -192,7 +196,9 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
         set_build_map();
 
         // Check if the file exists
-        if (is_map_building_finished(map_path))
+        //if (is_map_building_finished(map_path))
+        spdlog::info("qqq: {} -- {}", CFileUtils::FileExist(map_path.c_str()), map_path.string());
+        if (CFileUtils::FileExist(map_path.c_str()))
         {
             // Zip map
             CZip::create_zip(arch_path, { map_path });

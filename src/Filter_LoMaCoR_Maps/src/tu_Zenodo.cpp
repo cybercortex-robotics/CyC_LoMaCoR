@@ -12,12 +12,12 @@ void showUsage()
     printf("\nUsage:\n"
         "tu_Zenodo [options] credentials.conf \n\n"
         "Options:\n"
-        "  --r  # Region name\n"
-        "  --n  # Create a new region\n"
-        "  --l  # List available maps of the region\n"
-        "  --u  # Upload map\n"
-        "  --d  # Download map\n"
-        "  --o  # Path for downloading a map (if empty, same as current folder and map name on Zenodo)\n"
+        "  -r  # Region name\n"
+        "  -n  # Create a new region\n"
+        "  -l  # List available maps of the region\n"
+        "  -u  # Upload map\n"
+        "  -d  # Download map\n"
+        "  -o  # Path for downloading a map (if empty, same as current folder and map name on Zenodo)\n"
         "\n"
         "eg: tu_Zenodo ../etc/credentials.conf\n");
     exit(1);
@@ -29,6 +29,7 @@ int main(int argc, char** argv)
     std::cout << std::fixed;
     std::cout << std::setprecision(3);
 
+    bool bListDeposits = false;
     bool bListMaps = false;
     bool bUploadMap = false;
     bool bDownloadMap = false;
@@ -47,39 +48,39 @@ int main(int argc, char** argv)
     // Parse arguments
     for (int i = 1; i < argc - 1; i++)
     {
-        if (strcmp(argv[i], "--r") == 0)
+        if (strcmp(argv[i], "-r") == 0)
         {
             sRegionName = argv[i + 1];
             ++i;
             continue;
         }
-        else if (strcmp(argv[i], "--n") == 0)
+        else if (strcmp(argv[i], "-n") == 0)
         {
             bCreatesRegion = true;
             sRegionName = argv[i + 1];
             ++i;
             continue;
         }
-        else if (strcmp(argv[i], "--l") == 0)
+        else if (strcmp(argv[i], "-l") == 0)
         {
             bListMaps = true;
             continue;
         }
-        else if (strcmp(argv[i], "--u") == 0)
+        else if (strcmp(argv[i], "-u") == 0)
         {
             bUploadMap = true;
             sUploadMapPath = argv[i + 1];
             ++i;
             continue;
         }
-        else if (strcmp(argv[i], "--d") == 0)
+        else if (strcmp(argv[i], "-d") == 0)
         {
             bDownloadMap = true;
             sDownloadMapName = argv[i + 1];
             ++i;
             continue;
         }
-        else if (strcmp(argv[i], "--o") == 0)
+        else if (strcmp(argv[i], "-o") == 0)
         {
             sDownloadMapOutput = argv[i + 1];
             ++i;
@@ -94,12 +95,37 @@ int main(int argc, char** argv)
     CZenodo m_Zenodo(sCredentials);
     if (m_Zenodo.is_active())
     {
-        std::cout << "\nConnected succesfully to Zenodo" << std::endl;
+        std::cout << "\nConnected succesfully to Zenodo." << std::endl;
+        std::cout << "User:\t\t" << m_Zenodo.m_sGivenName << " " << m_Zenodo.m_sFamilyName << std::endl;
+        std::cout << "Affiliation:\t" << m_Zenodo.m_sAffiliation << std::endl << std::endl;
     }
     else
     {
-        std::cout << "Could not connect to Zenodo" << std::endl;
+        std::cout << "Could not connect to Zenodo. Exiting." << std::endl;
         return EXIT_FAILURE;
+    }
+
+    // List deposits if no other action is requested
+    if (!bListMaps && !bUploadMap && !bDownloadMap && !bCreatesRegion)
+    {
+        std::vector<CZenodo::Deposit> deposits = m_Zenodo.get_deposits();
+
+        if (!deposits.empty())
+        {
+            std::cout << "All deposits belonging to '" << m_Zenodo.m_sGivenName << " " << m_Zenodo.m_sFamilyName << "':" << std::endl;
+            for (const auto& dep : deposits)
+            {
+                std::cout << "\t" << dep.id << ":\t" << dep.title << " (" << dep.status << ")" << std::endl;
+            }
+        }
+        else
+        {
+            std::cout << "'" << m_Zenodo.m_sGivenName << " " << m_Zenodo.m_sFamilyName << "' has no deposits." << std::endl;
+        }
+
+        std::cout << std::endl;
+        std::cout << "EXIT_SUCCESS" << std::endl;
+        return EXIT_SUCCESS;
     }
 
     // Check if the requested map exists
@@ -125,11 +151,11 @@ int main(int argc, char** argv)
     {
         if (nDepositionID > 0)
         {
-            std::cout << "Region '" << sRegionName << "' found on Zenodo with ID '" << nDepositionID << "'." << std::endl;
+            std::cout << "\nRegion '" << sRegionName << "' found on Zenodo with latest version ID '" << nDepositionID << "'." << std::endl;
         }
         else
         {
-            std::cout << "Region '" << sRegionName << "' could not be found." << std::endl;
+            std::cout << "\nRegion '" << sRegionName << "' could not be found." << std::endl;
             return EXIT_FAILURE;
         }
     }
@@ -137,10 +163,23 @@ int main(int argc, char** argv)
     // List maps
     if (bListMaps)
     {
-        std::cout << "\nAvailable maps for '" << sRegionName << "':" << std::endl;
-        std::vector<CZenodo::File> maps = m_Zenodo.get_files(nDepositionID);
-        for (const auto& map : maps)
-            std::cout << "\t" << map.name << "\t" << map.id << std::endl;
+        std::cout << "\nPublished maps for '" << sRegionName << "' (id " << nDepositionID << "):" << std::endl;
+        std::vector<CZenodo::File> maps_published = m_Zenodo.get_published_files(nDepositionID);
+        for (const auto& map : maps_published)
+            std::cout << "\t" << map.name << std::endl;
+
+        int draft_id = m_Zenodo.find_active_draft_id(nDepositionID);
+        if (draft_id >= 0)
+        {
+            std::vector<CZenodo::File> maps_draft = m_Zenodo.get_draft_files(draft_id);
+            std::cout << "\nDraft maps for '" << sRegionName << "' (id " << draft_id << "):" << std::endl;
+            for (const auto& map : maps_draft)
+                std::cout << "\t" << map.name << std::endl;
+        }
+        else
+        {
+            std::cout << "\n'" << sRegionName << "' has no working draft." << std::endl;
+        }
     }
 
     // Upload file (map)
@@ -168,6 +207,5 @@ int main(int argc, char** argv)
 
     std::cout << std::endl;
     std::cout << "EXIT_SUCCESS" << std::endl;
-
     return EXIT_SUCCESS;
 }
