@@ -1,11 +1,17 @@
 // Copyright (c) 2026 CyberCortex Robotics SRL. All rights reserved
 // Author: Sorin Mihai Grigorescu
 
-#include "CyC_TYPES.h"
 #include "CZenodo.h"
 #include <cpr/cpr.h>
 #include <json.hpp>
-#include "os/CyC_FILESYSTEM.h"
+#include <iostream>
+#include <filesystem>
+namespace fs {
+    using namespace std::filesystem;
+    using ifstream = std::ifstream;
+    using ofstream = std::ofstream;
+    using fstream = std::fstream;
+}
 
 void showUsage()
 {
@@ -190,7 +196,7 @@ int main(int argc, char** argv)
     if (bDownloadMap)
     {
         if (std::filesystem::is_directory(sDownloadMapOutput))
-            sDownloadMapOutput = fs::path(sDownloadMapOutput) / fs::path(sDownloadMapName);
+            sDownloadMapOutput = (fs::path(sDownloadMapOutput) / fs::path(sDownloadMapName)).string();
 
         if (m_Zenodo.download_file(nDepositionID, sDownloadMapName, sDownloadMapOutput))
         {

@@ -7,7 +7,8 @@
 #include "CyC_TYPES.h"
 #include <CCycFilterBase.h>
 #include "env/COcTreeUtils.h"
-#include "CStateMachine.h"
+#include "../../lomacor/src/CStateMachine.h"
+#include <filesystem>
 
 class CLomacorMapsFilter : public CCycFilterBase
 {
@@ -28,10 +29,10 @@ private:
 	CCycFilterBase* m_pInputFilterMapsServer = nullptr;
 	CyC_TIME_UNIT   m_lastTsServer = 0;
 
-	std::unique_ptr<CStateMachine> m_pStateMachine = nullptr;
-	fs::path		m_MapsFolder;
-	std::string		m_sRegion;
-	unsigned int	m_nMapID = 0;
+	std::unique_ptr<CStateMachine>	m_pStateMachine = nullptr;
+	std::filesystem::path			m_MapsFolder;
+	std::string						m_sRegion;
+	unsigned int					m_nMapID = 0;
 };
 
 #endif /* CLomacorMapsFilter_H_ */

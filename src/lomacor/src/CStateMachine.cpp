@@ -2,9 +2,9 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CStateMachine.h"
-#include "os/CFileUtils.h"
 #include "CZip.h"
 #include <chrono>
+#include <spdlog/spdlog-inl.h>
 
 CStateMachine::CStateMachine(const std::string& _zenodo_url, const std::string& _access_token, 
     const std::string& _maps_folder, const std::string& _map_filetype, 
@@ -36,7 +36,7 @@ std::vector<int> CStateMachine::encode()
         std::lock_guard<std::mutex> lock(m_Mutex);
         cmd = m_Cmd;
         map_id = m_CurrentMap;
-        local_path = m_CurrentMapFilePath;
+        local_path = m_CurrentMapFilePath.string();
     }
     return encode(cmd, map_id, local_path);
 }
@@ -113,7 +113,7 @@ CStateMachine::LomacorCmd CStateMachine::get_cmd()
 std::string CStateMachine::get_map_file()
 {
     std::lock_guard<std::mutex> lock(m_Mutex);
-    return m_CurrentMapFilePath;
+    return m_CurrentMapFilePath.string();
 }
 
 std::string CStateMachine::get_region_name()
@@ -148,11 +148,11 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
     if (nDepositionID < 0)
         return;
 
-    fs::path region_folder_path = m_MapsFolder / fs::path(_region);
+    std::filesystem::path region_folder_path = m_MapsFolder / std::filesystem::path(_region);
 
     // Check if the region folder exists
-    if (!fs::exists(region_folder_path))
-        fs::create_directories(region_folder_path);
+    if (!std::filesystem::exists(region_folder_path))
+        std::filesystem::create_directories(region_folder_path);
 
     // Check if the region or the map ID have changed
     if (m_Cmd == CMD_USE_MAP && _map_id == m_CurrentMap && nDepositionID == m_CurrentRegion)
@@ -164,8 +164,8 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
     // Map and archive files paths
     std::string arch_filename = std::to_string(_map_id) + m_ArchFileType;
     std::string map_filename = std::to_string(_map_id) + m_MapsFileType;
-    fs::path arch_path = region_folder_path / arch_filename;
-    fs::path map_path = region_folder_path / map_filename;
+    std::filesystem::path arch_path = region_folder_path / arch_filename;
+    std::filesystem::path map_path = region_folder_path / map_filename;
 
     {
         std::lock_guard<std::mutex> lock(m_Mutex);
@@ -186,7 +186,7 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
         CZip::extract_zip(arch_path.string(), arch_path.parent_path().string());
 
         // Remove zip file
-        if (!fs::remove(arch_path))
+        if (!std::filesystem::remove(arch_path))
             spdlog::error("Map file '{}' could not be removed.", arch_path.string());
     }
     else if (m_bIsMapper)
@@ -197,20 +197,20 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
 
         // Check if the file exists
         //if (is_map_building_finished(map_path))
-        spdlog::info("qqq: {} -- {}", CFileUtils::FileExist(map_path.c_str()), map_path.string());
-        if (CFileUtils::FileExist(map_path.c_str()))
+        spdlog::info("qqq: {} -- {}", std::filesystem::exists(map_path.c_str()), map_path.string());
+        if (std::filesystem::exists(map_path.c_str()))
         {
             // Zip map
-            CZip::create_zip(arch_path, { map_path });
+            CZip::create_zip(arch_path.string(), { map_path.string()});
 
             // Upload to Zenodo
-            if (m_Zenodo.upload_file(nDepositionID, arch_path))
+            if (m_Zenodo.upload_file(nDepositionID, arch_path.string()))
                 spdlog::info("Uploaded '{}' map '{}' on Zenodo", _region, _map_id);
             else
                 spdlog::error("Failed to upload '{}' map '{}' on Zenodo", _region, _map_id);
 
             // Delete archive file
-            fs::remove(arch_path);
+            std::filesystem::remove(arch_path);
 
             set_use_map();
         }
@@ -223,21 +223,21 @@ void CStateMachine::step(const std::string& _region, const int& _map_id)
 
 bool CStateMachine::is_map_building_finished(const std::string& _map_file)
 {
-    if (!fs::exists(_map_file))
+    if (!std::filesystem::exists(_map_file))
         return false;
 
-    fs::file_time_type last_map_write_time = fs::file_time_type(fs::file_time_type::duration::zero());
+    std::filesystem::file_time_type last_map_write_time = std::filesystem::file_time_type(std::filesystem::file_time_type::duration::zero());
     try
     {
-        last_map_write_time = fs::last_write_time(_map_file);
+        last_map_write_time = std::filesystem::last_write_time(_map_file);
     }
-    catch (const fs::filesystem_error& e)
+    catch (const std::filesystem::filesystem_error& e)
     {
         spdlog::error("CStateMachine::step(): {}", e.what());
         return false;
     }
 
-    std::chrono::system_clock::duration time_since_write = fs::file_time_type::clock::now() - last_map_write_time;
+    std::chrono::system_clock::duration time_since_write = std::filesystem::file_time_type::clock::now() - last_map_write_time;
     //auto seconds_since_write = std::chrono::duration_cast<std::chrono::seconds>(time_since_write);
     //std::cout << "time_since_write = " << seconds_since_write.count() << " sec" << std::endl;
 

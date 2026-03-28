@@ -4,7 +4,6 @@
 #ifndef CZenodo_H_
 #define CZenodo_H_
 
-#include "CyC_TYPES.h"
 #include <cpr/cpr.h>
 #include <json.hpp>
 

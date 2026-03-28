@@ -4,9 +4,8 @@
 #ifndef CStateMachine_H_
 #define CStateMachine_H_
 
-#include "CyC_TYPES.h"
-#include "os/CyC_FILESYSTEM.h"
 #include "CZenodo.h"
+#include <filesystem>
 
 class CStateMachine
 {
@@ -55,21 +54,21 @@ private:
     std::vector<int> encode(const int& _cmd, const int& _map_id, std::string& _local_path);
 
 private:
-    fs::path    m_MapsFolder;
-    std::string m_MapsFileType;
-    std::string m_ArchFileType = ".zip";
-    CZenodo     m_Zenodo;
+    std::filesystem::path   m_MapsFolder;
+    std::string             m_MapsFileType;
+    std::string             m_ArchFileType = ".zip";
+    CZenodo                 m_Zenodo;
 
-    int         m_CurrentRegion;
-    std::string m_CurrentRegionName;
-    int         m_CurrentMap;
-    fs::path    m_CurrentMapFilePath;
+    int                     m_CurrentRegion;
+    std::string             m_CurrentRegionName;
+    int                     m_CurrentMap;
+    std::filesystem::path   m_CurrentMapFilePath;
 
-    LomacorCmd  m_Cmd = CMD_BUILD_MAP;
-    std::mutex  m_Mutex;
+    LomacorCmd              m_Cmd = CMD_BUILD_MAP;
+    std::mutex              m_Mutex;
 
-    std::chrono::seconds m_UpdateTh;
-    bool                 m_bIsMapper;
+    std::chrono::seconds    m_UpdateTh;
+    bool                    m_bIsMapper;
 };
 
 #endif /* CStateMachine_H_ */

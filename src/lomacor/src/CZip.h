@@ -4,7 +4,8 @@
 #ifndef CZip_H_
 #define CZip_H_
 
-#include "CyC_TYPES.h"
+#include <string>
+#include <vector>
 
 class CZip
 {

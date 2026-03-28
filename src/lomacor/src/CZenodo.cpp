@@ -2,16 +2,19 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CZenodo.h"
-#include "os/CyC_FILESYSTEM.h"
+#include <spdlog/spdlog-inl.h>
 #pragma warning(disable : 4275)
 #include <libconfig.h++>
 #pragma warning(default : 4275)
+#include <filesystem>
+#include <sstream>
+#include <iostream>
 
 CZenodo::CZenodo(const std::string& _credentials_file)
 {
     std::string family_name, given_name, affiliation, zenodo_url, access_token;
 
-    if (!fs::exists(_credentials_file.c_str()))
+    if (!std::filesystem::exists(_credentials_file.c_str()))
     {
         spdlog::error("CZenodo: Credentials file '{}' not found.", _credentials_file);
         return;

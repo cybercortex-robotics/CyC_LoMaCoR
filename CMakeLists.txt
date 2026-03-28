@@ -31,7 +31,9 @@ if (NOT ANDROID)
 endif (NOT ANDROID)
 
 # Add CyberCortex inference engine
-add_subdirectory(CyC_inference)
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CyC_inference/CMakeLists.txt")
+    add_subdirectory(CyC_inference)
+endif()
 
 if (NOT ANDROID)
     #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
@@ -48,6 +50,11 @@ include_directories(CyC_inference/src/cyc_core/src)
 # Include 3rdParty library directories
 link_directories(${CyC_THIRD_PARTY_LIBRARY_DIRECTORIES})
 
-# Hardware sensory filters
-add_cyc_filter(Filter_LoMaCoR_Maps src/Filter_LoMaCoR_Maps)
-add_cyc_filter(Filter_LoMaCoR_Viz src/Filter_LoMaCoR_Viz)
+# LoMaCoR library
+add_subdirectory(src/lomacor)
+
+# CyberCortex.AI filters
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CyC_inference/CMakeLists.txt")
+    add_cyc_filter(Filter_LoMaCoR_Maps src/Filter_LoMaCoR_Maps)
+    add_cyc_filter(Filter_LoMaCoR_Viz src/Filter_LoMaCoR_Viz)
+endif()

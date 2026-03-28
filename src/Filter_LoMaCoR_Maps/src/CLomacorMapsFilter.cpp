@@ -31,7 +31,7 @@ CLomacorMapsFilter::CLomacorMapsFilter(const ConfigFilterParameters& params) : C
     m_OutputDataType = CyC_VECTOR_INT;
 
     // Maps folder
-    m_MapsFolder = fs::path(params.sGlobalBasePath) / fs::path(m_CustomParameters.at("maps_folder"));
+    m_MapsFolder = (std::filesystem::path(params.sGlobalBasePath) / std::filesystem::path(m_CustomParameters.at("maps_folder"))).string();
 }
 
 CLomacorMapsFilter::~CLomacorMapsFilter()
@@ -134,13 +134,13 @@ bool CLomacorMapsFilter::enable()
         }
 
         // Check if the maps folder exists
-        if (!fs::exists(m_MapsFolder))
+        if (!std::filesystem::exists(m_MapsFolder))
         {
             log_error("Maps folder does not exists.");
             return false;
         }
 
-        m_pStateMachine = std::make_unique<CStateMachine>(sZenodoUrl, sAccessToken, m_MapsFolder, map_filetype, uploat_th, mapper);
+        m_pStateMachine = std::make_unique<CStateMachine>(sZenodoUrl, sAccessToken, m_MapsFolder.string(), map_filetype, uploat_th, mapper);
 
         if (!m_pStateMachine->is_active())
             return false;

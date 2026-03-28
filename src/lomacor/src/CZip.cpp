@@ -2,8 +2,10 @@
 // Author: Sorin Mihai Grigorescu
 
 #include "CZip.h"
+#include <string>
 #include <zip.h>
-#include "os/CyC_FILESYSTEM.h"
+#include <fstream>
+#include <filesystem>
 
 std::string CZip::readFileToString(const std::string& path)
 {
@@ -15,7 +17,7 @@ std::string CZip::readFileToString(const std::string& path)
 
 void CZip::writeFile(const std::string& path, const std::string& data)
 {
-    fs::create_directories(fs::path(path).parent_path());
+    std::filesystem::create_directories(std::filesystem::path(path).parent_path());
     std::ofstream file(path, std::ios::binary);
     if (!file)
         throw std::runtime_error("Unable to write file: " + path);
@@ -56,7 +58,7 @@ void CZip::create_zip(const std::string& zipPath, const std::vector<std::string>
             throw std::runtime_error("Failed to create zip source for: " + filePath);
         }
 
-        if (zip_file_add(zip, fs::path(filePath).filename().string().c_str(), source, ZIP_FL_OVERWRITE) < 0)
+        if (zip_file_add(zip, std::filesystem::path(filePath).filename().string().c_str(), source, ZIP_FL_OVERWRITE) < 0)
         {
             zip_source_free(source);
             zip_discard(zip);
@@ -106,7 +108,7 @@ void CZip::extract_zip(const std::string& zipPath, const std::string& destDir)
             throw std::runtime_error("Failed to read zipped file: " + std::string(st.name));
         }
 
-        std::string outPath = (fs::path(destDir) / st.name).string();
+        std::string outPath = (std::filesystem::path(destDir) / st.name).string();
         writeFile(outPath, buffer);
     }
 
