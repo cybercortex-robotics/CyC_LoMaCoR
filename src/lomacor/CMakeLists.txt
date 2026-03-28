@@ -59,7 +59,7 @@ endif (WIN32)
 
 # LoMaCoR state machine test unit
 add_executable(tu_Lomacor src/tu_Lomacor.cpp)
-target_link_libraries(tu_Lomacor PUBLIC lomacor libconfig++)
+target_link_libraries(tu_Lomacor PUBLIC lomacor)
 if (WIN32)
     target_link_libraries(tu_Lomacor PUBLIC libconfig++)
 else ()

@@ -6,6 +6,7 @@
 #include <zip.h>
 #include <fstream>
 #include <filesystem>
+#include <cstring>
 
 std::string CZip::readFileToString(const std::string& path)
 {
